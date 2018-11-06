@@ -1,14 +1,17 @@
 package actions
 
-import io.netty.buffer.Unpooled
 import io.netty.handler.codec.http.*
-import io.netty.util.CharsetUtil
 
-class Credit() {
+class Handler() {
     fun handle(request: HttpRequest): FullHttpResponse {
-        val json = Unpooled.copiedBuffer("{id:1}", CharsetUtil.UTF_8)
+        if (request.uri() == "/credit" && request.method() == HttpMethod.POST) {
+            return Credit().handle(request)
+        }
+        return notFound()
+    }
 
-        val response = DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, json)
+    private fun notFound(): FullHttpResponse {
+        val response = DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND)
 
         response.headers().set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON)
         response.headers().set(HttpHeaderNames.CONTENT_LENGTH, response.content().readableBytes())
