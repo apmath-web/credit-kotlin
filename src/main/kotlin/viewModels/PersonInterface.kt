@@ -1,10 +1,9 @@
 package viewModels
 
-import models.PersonInterface as PersonModelInterface
-
+import valueObjects.PersonInterface as PersonValueObjectInterface
 
 interface PersonInterface : ViewModelInterface {
-    fun hydrate(person: PersonModelInterface)
+    fun hydrate(person: PersonValueObjectInterface)
     fun getFirstName(): String
-    fun getFirstName(): String
+    fun getLastName(): String
 }

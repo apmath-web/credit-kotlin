@@ -1,5 +1,6 @@
 package viewModels
 
+import java.util.*
 import valueObjects.PaymentInterface as PaymentValueObjectInterface
 
 
@@ -10,4 +11,8 @@ interface PaymentInterface : ViewModelInterface {
     fun getCurrency(): String
     fun getDate(): String
     fun getState(): String
+    fun getPercent(): String
+    fun getBody(): Currency
+    fun getRemainCreditBody(): Currency
+    fun getFullEarlyRepayment(): Currency
 }

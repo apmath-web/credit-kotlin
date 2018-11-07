@@ -8,6 +8,9 @@ interface PaymentInterface {
     fun getType()
     fun getCurrency()
     fun getDate(): Date
-
     fun getState()
+    fun getPercent(): Currency
+    fun getBody(): Currency
+    fun getRemainCreditBody(): Currency
+    fun getFullEarlyRepayment(): Currency
 }
