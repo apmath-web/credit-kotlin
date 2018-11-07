@@ -10,13 +10,11 @@ interface CreditInterface {
     fun getPerson(): PersonInterface
     fun getAmount(): Currency
     fun getAgreementAt(): Date
-    fun getCurrency()
+    fun getCurrency(): data.Currency
     fun getDuration(): Int
     fun getPercent(): Int
     fun getRounding(): Int
-
     fun getRemainAmount(): Currency
     fun getPayments(type: String, state: String): List<PaymentInterface>
-
     fun writeOf(payment: PaymentInterface)
 }

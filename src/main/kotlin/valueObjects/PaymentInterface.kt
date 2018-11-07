@@ -5,10 +5,10 @@ import java.util.*
 
 interface PaymentInterface {
     fun getPayment(): Currency
-    fun getType()
-    fun getCurrency()
+    fun getType(): data.Type
+    fun getCurrency(): data.Currency
     fun getDate(): Date
-    fun getState()
+    fun getState(): data.State
     fun getPercent(): Currency
     fun getBody(): Currency
     fun getRemainCreditBody(): Currency
