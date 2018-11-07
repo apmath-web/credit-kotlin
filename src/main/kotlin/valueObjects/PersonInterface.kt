@@ -1,4 +1,4 @@
-package valueobjects
+package valueObjects
 
 
 interface PersonInterface {
