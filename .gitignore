@@ -4,6 +4,6 @@
 # generated stuff
 .gradle
 out
-
+build
 
 # other

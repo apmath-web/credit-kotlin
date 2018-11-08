@@ -23,8 +23,12 @@ compileKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
 
-compile {
-    kotlinOptions.jvmTarget = "1.8"
-}
-
 apply plugin: 'checkstyle'
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'ApplicationKt'
+        )
+    }
+}
