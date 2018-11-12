@@ -2,6 +2,6 @@ package valueObjects
 
 
 interface MessageInterface {
-    fun getField(): String
-    fun getText(): String
+    val field : String?
+    val text: String
 }

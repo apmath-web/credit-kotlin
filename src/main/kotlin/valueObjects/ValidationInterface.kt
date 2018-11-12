@@ -1,9 +1,6 @@
 package valueObjects
 
-import java.util.*
-
-
 interface ValidationInterface {
+    val messages : MutableList<MessageInterface>
     fun addMessage(message: MessageInterface)
-    fun getMessages(): List<MessageInterface>
 }
