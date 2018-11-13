@@ -1,11 +1,9 @@
 package valueObjects
 
 
-class Message (text : String) : MessageInterface {
+class Message (text : String, field : String? = null) : MessageInterface {
 
-    constructor(field : String?, text: String) : this(text)
+    override val field: String? = field
 
-    override val field: String? = null
-
-    override val text: String = ""
+    override val text: String = text
 }
