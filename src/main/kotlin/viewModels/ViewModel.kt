@@ -1,19 +1,20 @@
 package viewModels
 
+import org.json.*
 import valueObjects.MessageInterface
 import valueObjects.Validation
 import valueObjects.ValidationInterface
 
 abstract class ViewModel : ViewModelInterface {
 
-    private var json : Any? = null
     private var innerValidation : ValidationInterface? = null
 
-    override fun fill(json: Any): Boolean {
-        // TODO @malinink
-        // fill json with data
-        return true;
+    override fun loadAndValidate(json: String): Boolean {
+        // TODO use pretty try/catch here
+        return validate(JSONObject(json))
     }
+
+    protected abstract fun validate(json: JSONObject): Boolean
 
     override fun getValidation(): ValidationInterface? {
         return innerValidation

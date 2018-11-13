@@ -4,8 +4,7 @@ import valueObjects.ValidationInterface
 
 
 interface ViewModelInterface {
-    fun fill(json: Any): Boolean
-    fun fetch(): Any
-    fun validate(): ValidationInterface
+    fun loadAndValidate(json: String): Boolean
+    fun fetch(): String
     fun getValidation(): ValidationInterface?
 }
