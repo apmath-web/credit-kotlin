@@ -7,10 +7,10 @@ import valueObjects.PersonInterface as PersonValueObjectInterface
 
 interface CreditInterface : ViewModelInterface {
     fun hydrate(credit: CreditModelInterface)
-    fun getPerson(): PersonValueObjectInterface
-    fun getAmount(): Currency
-    fun getAgreementAt(): Date
-    fun getCurrency(): data.Currency
-    fun getDuration(): Int
-    fun getPercent(): Int
+    val person: PersonValueObjectInterface?
+    val amount: data.Money?
+    val agreementAt: Date?
+    val currency: data.Currency?
+    val duration: Int?
+    val percent: Int?
 }
