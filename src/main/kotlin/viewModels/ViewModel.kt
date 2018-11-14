@@ -14,11 +14,18 @@ abstract class ViewModel : ViewModelInterface {
         return validate(JSONObject(json))
     }
 
-    override fun loadAndValidate(json: JSONObject): Boolean {
+    fun loadAndValidate(json: JSONObject): Boolean {
         return validate(JSONObject(json))
     }
 
     protected abstract fun validate(json: JSONObject): Boolean
+
+    override fun fetch(): String
+    {
+        return fetchJson().toString()
+    }
+
+    abstract fun fetchJson(): JSONObject
 
     protected fun addMessage(message : MessageInterface) {
         validation.addMessage(message)

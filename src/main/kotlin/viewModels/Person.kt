@@ -10,13 +10,15 @@ class Person : ViewModel(), PersonInterface {
     override var lastName: String? = null
         private set
 
-
-    override fun fetch(): String {
-        TODO("not implemented")
+    override fun fetchJson(): JSONObject {
+        return JSONObject()
+            .append("firstName", firstName)
+            .append("lastName", lastName)
     }
 
     override fun hydrate(person: valueObjects.PersonInterface) {
-        TODO("not implemented")
+        firstName = person.firstName
+        lastName = person.lastName
     }
 
     override fun validate(json: JSONObject): Boolean {

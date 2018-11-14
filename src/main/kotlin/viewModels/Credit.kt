@@ -21,7 +21,7 @@ class Credit : ViewModel(), CreditInterface {
     override var percent: Int? = null
         private set
 
-    override fun fetch(): String {
+    override fun fetchJson(): JSONObject {
         TODO("not implemented")
     }
 
