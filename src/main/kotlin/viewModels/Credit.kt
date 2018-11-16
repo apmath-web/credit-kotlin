@@ -29,7 +29,7 @@ class Credit : ViewModel(), CreditInterface {
         TODO("not implemented")
     }
 
-    override fun validate(json: JSONObject): Boolean {
+    override fun loadAndValidate(json: JSONObject): Boolean {
         return loadAndValidatePerson(json)
                 && loadAndValidateAmount(json)
                 && loadAndValidateAgreementAt(json)
@@ -46,7 +46,7 @@ class Credit : ViewModel(), CreditInterface {
         }
 
         val raw = json.get(PERSON)
-        raw?.let {
+        if (raw == null) {
             addMessage(Message(NOT_NULL, PERSON))
             return false
         }

@@ -21,7 +21,7 @@ class Person : ViewModel(), PersonInterface {
         lastName = person.lastName
     }
 
-    override fun validate(json: JSONObject): Boolean {
+    override fun loadAndValidate(json: JSONObject): Boolean {
         return loadAndValidateFirstName(json)
                 && loadAndValidateLastName(json)
     }
@@ -34,7 +34,7 @@ class Person : ViewModel(), PersonInterface {
         }
 
         val raw = json.get(FIRST_NAME)
-        raw?.let {
+        if (raw == null) {
             addMessage(Message(NOT_NULL, FIRST_NAME))
             return false
         }
@@ -62,7 +62,7 @@ class Person : ViewModel(), PersonInterface {
         }
 
         val raw = json.get(LAST_NAME)
-        raw?.let {
+        if (raw == null) {
             addMessage(Message(NOT_NULL, LAST_NAME))
             return false
         }

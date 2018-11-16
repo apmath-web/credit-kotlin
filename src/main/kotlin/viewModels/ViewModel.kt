@@ -1,6 +1,7 @@
 package viewModels
 
 import org.json.*
+import valueObjects.Message
 import valueObjects.MessageInterface
 import valueObjects.Validation
 import valueObjects.ValidationInterface
@@ -10,15 +11,17 @@ abstract class ViewModel : ViewModelInterface {
     override val validation: ValidationInterface = Validation()
 
     override fun loadAndValidate(json: String): Boolean {
-        // TODO use pretty try/catch here
-        return validate(JSONObject(json))
+        val jsonObject: JSONObject
+        try {
+            jsonObject = JSONObject(json)
+        } catch (e: JSONException) {
+            addMessage(Message(INVALID_JSON))
+            return false
+        }
+        return loadAndValidate(jsonObject)
     }
 
-    fun loadAndValidate(json: JSONObject): Boolean {
-        return validate(JSONObject(json))
-    }
-
-    protected abstract fun validate(json: JSONObject): Boolean
+    abstract fun loadAndValidate(json: JSONObject): Boolean
 
     override fun fetch(): String
     {
@@ -32,6 +35,7 @@ abstract class ViewModel : ViewModelInterface {
     }
 
     companion object {
+        const val INVALID_JSON  = "Invalid JSON format"
         const val REQUIRED      = "Is required"
         const val NOT_NULL      = "Must be not null"
         const val NOT_OBJECT    = "Must be an object"
