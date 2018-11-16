@@ -28,20 +28,25 @@ class Person : ViewModel(), PersonInterface {
 
     private fun loadAndValidateFirstName(json: JSONObject): Boolean
     {
-        if (!json.has("firstName")) {
-            addMessage(Message("Is required", "firstName"))
+        if (!json.has(FIRST_NAME)) {
+            addMessage(Message(REQUIRED, FIRST_NAME))
             return false
         }
 
-        val raw = json.get("firstName")
+        val raw = json.get(FIRST_NAME)
+        raw?.let {
+            addMessage(Message(NOT_NULL, FIRST_NAME))
+            return false
+        }
+
         if (raw !is String) {
-            addMessage(Message("Must be a string", "firstName"))
+            addMessage(Message(STRING, FIRST_NAME))
             return false
         }
 
-        val string = raw as String
-        if (string?.length ?: 0 < 1) {
-            addMessage(Message("Must be at least 1 character long", "firstName"))
+        val string: String = raw
+        if (string.isEmpty()) {
+            addMessage(Message(STRING_1_CHARACTER, FIRST_NAME))
             return false
         }
 
@@ -51,24 +56,36 @@ class Person : ViewModel(), PersonInterface {
 
     private fun loadAndValidateLastName(json: JSONObject): Boolean
     {
-        if (!json.has("lastName")) {
-            addMessage(Message("Is required", "lastName"))
+        if (!json.has(LAST_NAME)) {
+            addMessage(Message(REQUIRED, LAST_NAME))
             return false
         }
 
-        val raw = json.get("lastName")
+        val raw = json.get(LAST_NAME)
+        raw?.let {
+            addMessage(Message(NOT_NULL, LAST_NAME))
+            return false
+        }
+
         if (raw !is String) {
-            addMessage(Message("Must be a string", "lastName"))
+            addMessage(Message(STRING, LAST_NAME))
             return false
         }
 
-        val string = raw as String
-        if (string?.length ?: 0 < 1) {
-            addMessage(Message("Must be at least 1 character long", "lastName"))
+        val string: String = raw
+        if (string.isEmpty()) {
+            addMessage(Message(STRING_1_CHARACTER, LAST_NAME))
             return false
         }
 
         lastName = string
         return true
+    }
+
+    companion object {
+        const val STRING_1_CHARACTER = "Must be at least 1 character long"
+
+        const val FIRST_NAME    = "firstName"
+        const val LAST_NAME     = "lastName"
     }
 }

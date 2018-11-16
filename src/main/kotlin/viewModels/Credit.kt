@@ -40,18 +40,31 @@ class Credit : ViewModel(), CreditInterface {
 
     private fun loadAndValidatePerson(json: JSONObject): Boolean
     {
-        if (!json.has("person")) {
-            addMessage(Message("Is required", "person"))
+        if (!json.has(PERSON)) {
+            addMessage(Message(REQUIRED, PERSON))
             return false
         }
-        val raw = Person()
-        if (!raw.loadAndValidate(json.getJSONObject("person"))) {
-            raw.validation.messages.forEach{
-                addMessage(Message(it.text, "person/${it.field}"))
+
+        val raw = json.get(PERSON)
+        raw?.let {
+            addMessage(Message(NOT_NULL, PERSON))
+            return false
+        }
+
+        if (raw !is JSONObject) {
+            addMessage(Message(NOT_OBJECT, PERSON))
+            return false
+        }
+
+        val rawPerson = Person()
+        if (!rawPerson.loadAndValidate(json.getJSONObject(PERSON))) {
+            rawPerson.validation.messages.forEach{
+                addMessage(Message(it.text, "${PERSON}/${it.field}"))
             }
             return false
         }
-        person = PersonValueObject(raw.firstName as String, raw.lastName as String)
+
+        person = PersonValueObject(rawPerson.firstName as String, rawPerson.lastName as String)
         return true
     }
 
@@ -78,5 +91,9 @@ class Credit : ViewModel(), CreditInterface {
     private fun loadAndValidatePercent(json: JSONObject): Boolean
     {
         TODO("not implemented")
+    }
+
+    companion object {
+        const val PERSON    = "person"
     }
 }

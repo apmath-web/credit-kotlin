@@ -30,4 +30,11 @@ abstract class ViewModel : ViewModelInterface {
     protected fun addMessage(message : MessageInterface) {
         validation.addMessage(message)
     }
+
+    companion object {
+        const val REQUIRED      = "Is required"
+        const val NOT_NULL      = "Must be not null"
+        const val NOT_OBJECT    = "Must be an object"
+        const val STRING        = "Must be a string"
+    }
 }
