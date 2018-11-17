@@ -41,5 +41,8 @@ abstract class ViewModel : ViewModelInterface {
         const val NOT_NULL      = "Must be not null"
         const val NOT_OBJECT    = "Must be an object"
         const val STRING        = "Must be a string"
+        const val LONG          = "Must be a 64bit number"
+        const val DATE          = "Must be a YYYY-MM-DD date"
+        const val DATE_INVALID  = "Must be a valid date"
     }
 }
