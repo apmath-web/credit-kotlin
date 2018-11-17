@@ -6,6 +6,7 @@ import valueObjects.MessageInterface
 import valueObjects.Validation
 import valueObjects.ValidationInterface
 
+
 abstract class ViewModel : ViewModelInterface {
 
     override val validation: ValidationInterface = Validation()

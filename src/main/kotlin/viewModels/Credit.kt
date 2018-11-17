@@ -7,6 +7,7 @@ import valueObjects.PersonInterface as PersonValueObjectInterface
 import valueObjects.Person as PersonValueObject
 import models.CreditInterface as CreditModelInterface
 
+
 class Credit : ViewModel(), CreditInterface {
     override var person: PersonValueObjectInterface? = null
         private set

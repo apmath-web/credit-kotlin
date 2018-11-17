@@ -14,8 +14,8 @@ class PersonInvalidJsonTest {
 
     private fun invalidJsonProvider() = Stream.of(
         Arguments.of("{\"lastName\":\"Malinin\"}"),
-        Arguments.of("{\"firstName\":null,\"lastName\":\"m\"}"),
-        Arguments.of("{\"firstName\":\"\",\"lastName\":\"m\"}")
+        Arguments.of("{\"firstName\":null,\"lastName\":\"Malinin\"}"),
+        Arguments.of("{\"firstName\":\"\",\"lastName\":\"Malinin\"}")
     )
 
     @ParameterizedTest

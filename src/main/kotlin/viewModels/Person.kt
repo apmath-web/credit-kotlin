@@ -3,6 +3,7 @@ package viewModels
 import org.json.JSONObject
 import valueObjects.Message
 
+
 class Person : ViewModel(), PersonInterface {
     override var firstName: String? = null
         private set

@@ -1,6 +1,5 @@
 package viewModels
 
-import org.json.JSONObject
 import valueObjects.ValidationInterface
 
 
