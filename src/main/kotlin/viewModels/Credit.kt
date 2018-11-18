@@ -1,5 +1,6 @@
 package viewModels
 
+import data.Currency
 import data.Money
 import org.json.*
 import valueObjects.Message
@@ -44,19 +45,10 @@ class Credit : ViewModel(), CreditInterface {
 
     private fun loadAndValidatePerson(json: JSONObject): Boolean
     {
-        if (!json.has(PERSON)) {
-            addMessage(Message(REQUIRED, PERSON))
-            return false
-        }
-
-        val raw = json.get(PERSON)
-        if (raw == null) {
-            addMessage(Message(NOT_NULL, PERSON))
-            return false
-        }
+        val raw = loadNotNullRequiredField(json, PERSON) ?: return false
 
         if (raw !is JSONObject) {
-            addMessage(Message(NOT_OBJECT, PERSON))
+            addMessage(Message(MESSAGE_NOT_OBJECT, PERSON))
             return false
         }
 
@@ -74,19 +66,10 @@ class Credit : ViewModel(), CreditInterface {
 
     private fun loadAndValidateAmount(json: JSONObject): Boolean
     {
-        if (!json.has(AMOUNT)) {
-            addMessage(Message(REQUIRED, AMOUNT))
-            return false
-        }
-
-        val raw = json.get(AMOUNT)
-        if (raw == null) {
-            addMessage(Message(NOT_NULL, AMOUNT))
-            return false
-        }
+        val raw = loadNotNullRequiredField(json, AMOUNT) ?: return false
 
         if (raw !is Long) {
-            addMessage(Message(LONG, AMOUNT))
+            addMessage(Message(MESSAGE_NOT_LONG, AMOUNT))
             return false
         }
 
@@ -109,18 +92,18 @@ class Credit : ViewModel(), CreditInterface {
         val raw = json.get(AGREEMENT_AT) ?: return true
 
         if (raw !is String) {
-            addMessage(Message(STRING, AGREEMENT_AT))
+            addMessage(Message(MESSAGE_NOT_STRING, AGREEMENT_AT))
             return false
         }
 
         val string: String = raw
         if (!string.matches(Regex("/[0-9]{4}-[0-9]{2}-[0-9]{2}/u"))) {
-            addMessage(Message(DATE, AGREEMENT_AT))
+            addMessage(Message(MESSAGE_NOT_DATE, AGREEMENT_AT))
             return false
         }
 
         agreementAt = try { LocalDate.parse(string, DateTimeFormatter.ISO_DATE) } catch (e: DateTimeParseException) {
-            addMessage(Message(DATE_INVALID, AGREEMENT_AT))
+            addMessage(Message(MESSAGE_DATE_INVALID, AGREEMENT_AT))
             return false
         }
 
@@ -129,17 +112,64 @@ class Credit : ViewModel(), CreditInterface {
 
     private fun loadAndValidateCurrency(json: JSONObject): Boolean
     {
-        TODO("not implemented")
+        val raw = loadNotNullRequiredField(json, CURRENCY) ?: return false
+
+        if (raw !is String) {
+            addMessage(Message(MESSAGE_NOT_STRING, CURRENCY))
+            return false
+        }
+
+        val string: String = raw
+        if (!string.matches(Regex("/(RUR|EUR|USD)/u"))) {
+            addMessage(Message(MESSAGE_CURRENCY_UNKNOWN, CURRENCY))
+            return false
+        }
+
+        currency = when (raw) {
+            "EUR"   -> Currency.EUR
+            "USD"   -> Currency.USD
+            else    -> Currency.RUR
+        }
+
+        return true
     }
 
     private fun loadAndValidateDuration(json: JSONObject): Boolean
     {
-        TODO("not implemented")
+        val raw = loadNotNullRequiredField(json, DURATION) ?: return false
+
+        if (raw !is Int) {
+            addMessage(Message(MESSAGE_NOT_INT, DURATION))
+            return false
+        }
+
+        val int: Int = raw
+        if (int < 6 || int > 1200) {
+            addMessage(Message("Must be between 6 and 1200", DURATION))
+            return false
+        }
+
+        duration = int
+        return true
     }
 
     private fun loadAndValidatePercent(json: JSONObject): Boolean
     {
-        TODO("not implemented")
+        val raw = loadNotNullRequiredField(json, PERCENT) ?: return false
+
+        if (raw !is Int) {
+            addMessage(Message(MESSAGE_NOT_LONG, PERCENT))
+            return false
+        }
+
+        val int: Int = raw
+        if (int < 1 || int > 300) {
+            addMessage(Message("Must be between 1 and 300", PERCENT))
+            return false
+        }
+
+        percent = int
+        return true
     }
 
     companion object {

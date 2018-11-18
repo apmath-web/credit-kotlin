@@ -29,19 +29,10 @@ class Person : ViewModel(), PersonInterface {
 
     private fun loadAndValidateFirstName(json: JSONObject): Boolean
     {
-        if (!json.has(FIRST_NAME)) {
-            addMessage(Message(REQUIRED, FIRST_NAME))
-            return false
-        }
-
-        val raw = json.get(FIRST_NAME)
-        if (raw == null) {
-            addMessage(Message(NOT_NULL, FIRST_NAME))
-            return false
-        }
+        val raw = loadNotNullRequiredField(json, FIRST_NAME) ?: return false
 
         if (raw !is String) {
-            addMessage(Message(STRING, FIRST_NAME))
+            addMessage(Message(MESSAGE_NOT_STRING, FIRST_NAME))
             return false
         }
 
@@ -57,19 +48,10 @@ class Person : ViewModel(), PersonInterface {
 
     private fun loadAndValidateLastName(json: JSONObject): Boolean
     {
-        if (!json.has(LAST_NAME)) {
-            addMessage(Message(REQUIRED, LAST_NAME))
-            return false
-        }
-
-        val raw = json.get(LAST_NAME)
-        if (raw == null) {
-            addMessage(Message(NOT_NULL, LAST_NAME))
-            return false
-        }
+        val raw = loadNotNullRequiredField(json, LAST_NAME) ?: return false
 
         if (raw !is String) {
-            addMessage(Message(STRING, LAST_NAME))
+            addMessage(Message(MESSAGE_NOT_STRING, LAST_NAME))
             return false
         }
 
