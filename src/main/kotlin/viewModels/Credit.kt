@@ -61,7 +61,7 @@ class Credit : ViewModel(), CreditInterface {
         }
 
         val rawPerson = Person()
-        if (!rawPerson.loadAndValidate(json.getJSONObject(PERSON))) {
+        if (!rawPerson.loadAndValidate(raw)) {
             rawPerson.validation.messages.forEach{
                 addMessage(Message(it.text, "${PERSON}/${it.field}"))
             }
