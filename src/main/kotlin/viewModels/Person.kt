@@ -23,8 +23,10 @@ class Person : ViewModel(), PersonInterface {
     }
 
     override fun loadAndValidate(json: JSONObject): Boolean {
-        return loadAndValidateFirstName(json)
-                && loadAndValidateLastName(json)
+        return arrayOf(
+            loadAndValidateFirstName(json),
+            loadAndValidateLastName(json)
+        ).reduce { a, b -> a && b }
     }
 
     private fun loadAndValidateFirstName(json: JSONObject): Boolean
