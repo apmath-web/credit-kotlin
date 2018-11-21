@@ -29,8 +29,6 @@ abstract class ViewModel : ViewModelInterface {
         return fetchJson().toString()
     }
 
-    abstract fun fetchJson(): JSONObject
-
     protected fun addMessage(message : MessageInterface) {
         validation.addMessage(message)
     }
@@ -60,6 +58,6 @@ abstract class ViewModel : ViewModelInterface {
         const val MESSAGE_NOT_INT               = "Must be a number"
         const val MESSAGE_NOT_DATE              = "Must be a YYYY-MM-DD date"
         const val MESSAGE_DATE_INVALID          = "Must be a valid date"
-        const val MESSAGE_CURRENCY_UNKNOWN      = "Must be a valid date"
+        const val MESSAGE_CURRENCY_UNKNOWN      = "Must be a valid currency ['RUR', 'USD', 'EUR'] allowed"
     }
 }
