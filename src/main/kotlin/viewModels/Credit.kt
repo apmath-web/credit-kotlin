@@ -4,6 +4,7 @@ import data.Currency
 import data.Money
 import org.json.*
 import valueObjects.Message
+import java.lang.Exception
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
@@ -27,20 +28,41 @@ class Credit : ViewModel(), CreditInterface {
         private set
 
     override fun fetchJson(): JSONObject {
-        TODO("not implemented")
+        return JSONObject()
+            .put(PERSON, {
+                Person().apply {
+                    hydrate(person ?: throw Exception())
+                    fetchJson()
+                }
+            })
+            .put(AMOUNT, amount)
+            .put(AGREEMENT_AT, (agreementAt as LocalDate).format(DateTimeFormatter.ISO_DATE))
+            .put(CURRENCY, when (currency as data.Currency) {
+                data.Currency.USD   -> "USD"
+                data.Currency.EUR   -> "EUR"
+                data.Currency.RUR   -> "RUR"
+            })
+            .put(PERCENT, percent)
     }
 
     override fun hydrate(credit: CreditModelInterface) {
-        TODO("not implemented")
+        person      = credit.person
+        amount      = credit.amount
+        agreementAt = credit.agreementAt
+        currency    = credit.currency
+        duration    = credit.duration
+        percent     = credit.percent
     }
 
     override fun loadAndValidate(json: JSONObject): Boolean {
-        return loadAndValidatePerson(json)
-                && loadAndValidateAmount(json)
-                && loadAndValidateAgreementAt(json)
-                && loadAndValidateCurrency(json)
-                && loadAndValidateDuration(json)
-                && loadAndValidatePercent(json)
+        return arrayOf(
+            loadAndValidatePerson(json),
+            loadAndValidateAmount(json),
+            loadAndValidateAgreementAt(json),
+            loadAndValidateCurrency(json),
+            loadAndValidateDuration(json),
+            loadAndValidatePercent(json)
+        ).reduce { a, b -> a && b }
     }
 
     private fun loadAndValidatePerson(json: JSONObject): Boolean
