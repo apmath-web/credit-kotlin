@@ -2,19 +2,18 @@ package models
 
 import valueObjects.PaymentInterface
 import valueObjects.PersonInterface
-import java.util.*
+import java.time.LocalDate
 
 
 interface CreditInterface {
-    fun getId(): Int?
-    fun getPerson(): PersonInterface
-    fun getAmount(): data.Money
-    fun getAgreementAt(): Date
-    fun getCurrency(): data.Currency
-    fun getDuration(): Int
-    fun getPercent(): Int
-    fun getRounding(): Int
-    fun getRemainAmount(): data.Money
+    val id: Int?
+    val person: PersonInterface
+    val amount: data.Money
+    val agreementAt: LocalDate
+    val currency: data.Currency
+    val duration: Int
+    val percent: Int
+
     fun getPayments(type: String?, state: String?): List<PaymentInterface>
     fun writeOf(payment: PaymentInterface)
 }
