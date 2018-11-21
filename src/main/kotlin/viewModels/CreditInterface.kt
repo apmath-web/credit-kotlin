@@ -7,7 +7,7 @@ import valueObjects.PersonInterface as PersonValueObjectInterface
 
 interface CreditInterface : ViewModelInterface {
     fun hydrate(credit: CreditModelInterface)
-    val person: PersonValueObjectInterface?
+    val person: PersonInterface?
     val amount: data.Money?
     val agreementAt: LocalDate?
     val currency: data.Currency?

@@ -13,7 +13,7 @@ import kotlin.test.assertNotEquals
 
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class PersonJsonTest {
+class PersonJsonLoadAndValidateTest {
 
     private fun invalidJsonProvider() = Stream.of(
         // wrong firstName
@@ -91,7 +91,7 @@ class PersonJsonTest {
     )
     @ParameterizedTest
     @MethodSource("invalidJsonProvider")
-    fun validateTest(json: JSONObject, isValid: Boolean, fields: Array<String>?) {
+    fun loadAndValidateTest(json: JSONObject, isValid: Boolean, fields: Array<String>?) {
         val person = Person()
 
         if (isValid) {
