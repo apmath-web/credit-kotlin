@@ -13,8 +13,8 @@ class Person : ViewModel(), PersonInterface {
 
     override fun fetchJson(): JSONObject {
         return JSONObject()
-            .append(FIRST_NAME, firstName)
-            .append(LAST_NAME, lastName)
+            .put(FIRST_NAME, firstName)
+            .put(LAST_NAME, lastName)
     }
 
     override fun hydrate(person: valueObjects.PersonInterface) {
