@@ -4,7 +4,6 @@ import data.Currency
 import data.Money
 import org.json.*
 import valueObjects.Message
-import java.lang.Exception
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
@@ -14,7 +13,7 @@ import models.CreditInterface as CreditModelInterface
 
 
 class Credit : ViewModel(), CreditInterface {
-    override var person: PersonValueObjectInterface? = null
+    override var person: PersonInterface? = null
         private set
     override var amount: data.Money? = null
         private set
@@ -29,24 +28,22 @@ class Credit : ViewModel(), CreditInterface {
 
     override fun fetchJson(): JSONObject {
         return JSONObject()
-            .put(PERSON, {
-                Person().apply {
-                    hydrate(person ?: throw Exception())
-                    fetchJson()
-                }
-            })
-            .put(AMOUNT, amount)
+            .put(PERSON, person?.fetchJson())
+            .put(AMOUNT, amount?.value)
             .put(AGREEMENT_AT, (agreementAt as LocalDate).format(DateTimeFormatter.ISO_DATE))
             .put(CURRENCY, when (currency as data.Currency) {
                 data.Currency.USD   -> "USD"
                 data.Currency.EUR   -> "EUR"
                 data.Currency.RUR   -> "RUR"
             })
+            .put(DURATION, duration)
             .put(PERCENT, percent)
     }
 
     override fun hydrate(credit: CreditModelInterface) {
-        person      = credit.person
+        person      = Person().apply {
+            hydrate(credit.person)
+        }
         amount      = credit.amount
         agreementAt = credit.agreementAt
         currency    = credit.currency
@@ -77,12 +74,12 @@ class Credit : ViewModel(), CreditInterface {
         val rawPerson = Person()
         if (!rawPerson.loadAndValidate(raw)) {
             rawPerson.validation.messages.forEach{
-                addMessage(Message(it.text, "${PERSON}/${it.field}"))
+                addMessage(Message(it.text, "${PERSON}.${it.field}"))
             }
             return false
         }
 
-        person = PersonValueObject(rawPerson.firstName as String, rawPerson.lastName as String)
+        person = rawPerson
         return true
     }
 
@@ -90,18 +87,19 @@ class Credit : ViewModel(), CreditInterface {
     {
         val raw = loadNotNullRequiredField(json, AMOUNT) ?: return false
 
-        if (raw !is Long) {
+        if ((raw !is Long) && (raw !is Int)) {
             addMessage(Message(MESSAGE_NOT_LONG, AMOUNT))
             return false
         }
 
-        val long: Long = raw
+        val long: Long = if (raw is Int) raw.toLong() else raw as Long
+
         if (long < 1 || long > 3000000000000000L) {
             addMessage(Message("Must be between 1 and 3000000000000000", AMOUNT))
             return false
         }
 
-        amount = long as Money
+        amount = Money(long)
         return true
     }
 
@@ -118,13 +116,12 @@ class Credit : ViewModel(), CreditInterface {
             return false
         }
 
-        val string: String = raw
-        if (!string.matches(Regex("/[0-9]{4}-[0-9]{2}-[0-9]{2}/u"))) {
+        if (!Regex("^[0-9]{4}-[0-9]{2}-[0-9]{2}$").matches(raw)) {
             addMessage(Message(MESSAGE_NOT_DATE, AGREEMENT_AT))
             return false
         }
 
-        agreementAt = try { LocalDate.parse(string, DateTimeFormatter.ISO_DATE) } catch (e: DateTimeParseException) {
+        agreementAt = try { LocalDate.parse(raw, DateTimeFormatter.ISO_DATE) } catch (e: DateTimeParseException) {
             addMessage(Message(MESSAGE_DATE_INVALID, AGREEMENT_AT))
             return false
         }
@@ -141,16 +138,16 @@ class Credit : ViewModel(), CreditInterface {
             return false
         }
 
-        val string: String = raw
-        if (!string.matches(Regex("/(RUR|EUR|USD)/u"))) {
-            addMessage(Message(MESSAGE_CURRENCY_UNKNOWN, CURRENCY))
-            return false
-        }
-
         currency = when (raw) {
             "EUR"   -> Currency.EUR
             "USD"   -> Currency.USD
-            else    -> Currency.RUR
+            "RUR"   -> Currency.RUR
+            else    -> null
+        }
+
+        if (currency == null) {
+            addMessage(Message(MESSAGE_CURRENCY_UNKNOWN, CURRENCY))
+            return false
         }
 
         return true
