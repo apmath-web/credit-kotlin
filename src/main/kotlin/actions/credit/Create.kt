@@ -1,10 +1,11 @@
-package actions
+package actions.credit
 
 import io.netty.buffer.Unpooled
 import io.netty.handler.codec.http.*
 import io.netty.util.CharsetUtil
+import repositories.CreditsRepositoryInterface
 
-class Credit() {
+class Create(private val repository: CreditsRepositoryInterface) {
     fun handle(request: HttpRequest): FullHttpResponse {
         val json = Unpooled.copiedBuffer("{id:1}", CharsetUtil.UTF_8)
 
