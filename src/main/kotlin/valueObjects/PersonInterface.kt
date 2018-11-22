@@ -2,6 +2,6 @@ package valueObjects
 
 
 interface PersonInterface {
-    fun getFirstName(): String
-    fun getLastName(): String
+    val firstName: String
+    val lastName: String
 }

@@ -4,13 +4,13 @@ import java.util.*
 
 
 interface PaymentInterface {
-    fun getPayment(): Currency
+    fun getPayment(): data.Money
     fun getType(): data.Type
     fun getCurrency(): data.Currency
     fun getDate(): Date
     fun getState(): data.State
-    fun getPercent(): Currency
-    fun getBody(): Currency
-    fun getRemainCreditBody(): Currency
-    fun getFullEarlyRepayment(): Currency
+    fun getPercent(): data.Money
+    fun getBody(): data.Money
+    fun getRemainCreditBody(): data.Money
+    fun getFullEarlyRepayment(): data.Money
 }

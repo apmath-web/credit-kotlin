@@ -1,11 +1,12 @@
 package viewModels
 
+import org.json.JSONObject
 import valueObjects.ValidationInterface
 
 
 interface ViewModelInterface {
-    fun fill(json: Any): Boolean
-    fun fetch(): Any
-    fun validate(): ValidationInterface
-    fun getValidation(): ValidationInterface
+    fun loadAndValidate(json: String): Boolean
+    fun fetch(): String
+    fun fetchJson(): JSONObject
+    val validation: ValidationInterface
 }
