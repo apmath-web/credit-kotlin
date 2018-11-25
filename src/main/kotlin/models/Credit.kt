@@ -1,5 +1,6 @@
 package models
 
+import exceptions.ChangeIdentifiedCreditIdException
 import valueObjects.PaymentInterface
 import valueObjects.PersonInterface
 import java.time.LocalDate
@@ -17,6 +18,8 @@ class Credit(
         set(value) {
             if (field == null) {
                 field = value
+            } else {
+                throw ChangeIdentifiedCreditIdException()
             }
         }
     override val person: PersonInterface = person

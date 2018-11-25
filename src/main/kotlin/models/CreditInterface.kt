@@ -6,7 +6,7 @@ import java.time.LocalDate
 
 
 interface CreditInterface {
-    val id: Int?
+    var id: Int?
     val person: PersonInterface
     val amount: data.Money
     val agreementAt: LocalDate
