@@ -5,7 +5,7 @@ import io.netty.handler.codec.http.*
 import repositories.CreditsRepository
 import repositories.CreditsRepositoryInterface
 
-class Handler() {
+class Handler {
     fun handle(request: HttpRequest): FullHttpResponse {
         if (request.uri() == "/credit" && request.method() == HttpMethod.POST) {
             return Create(repository).handle(request)

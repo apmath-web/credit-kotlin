@@ -7,7 +7,7 @@ import repositories.CreditsRepositoryInterface
 
 class Create(private val repository: CreditsRepositoryInterface) {
     fun handle(request: HttpRequest): FullHttpResponse {
-        val json = Unpooled.copiedBuffer("{id:1}", CharsetUtil.UTF_8)
+        val json = Unpooled.copiedBuffer("{\"id\":1}", CharsetUtil.UTF_8)
 
         val response = DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, json)
 
