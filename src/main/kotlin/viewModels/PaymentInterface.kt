@@ -1,14 +1,18 @@
 package viewModels
 
+import domain.data.Type
+import domain.data.Money
+import domain.data.Currency
+import domain.data.State
 import java.time.LocalDate
-import valueObjects.PaymentInterface as PaymentValueObjectInterface
+import domain.valueObjects.PaymentInterface as PaymentValueObjectInterface
 
 
 interface PaymentInterface : ViewModelInterface {
     fun hydrate(person: PaymentValueObjectInterface)
-    fun getPayment(): data.Money
-    fun getType(): data.Type
-    fun getCurrency(): data.Currency
+    fun getPayment(): Money
+    fun getType(): Type
+    fun getCurrency(): Currency
     fun getDate(): LocalDate
-    fun getState(): data.State
+    fun getState(): State
 }

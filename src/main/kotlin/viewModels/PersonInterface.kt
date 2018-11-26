@@ -1,6 +1,6 @@
 package viewModels
 
-import valueObjects.PersonInterface as PersonValueObjectInterface
+import domain.valueObjects.PersonInterface as PersonValueObjectInterface
 
 interface PersonInterface : ViewModelInterface {
     fun hydrate(person: PersonValueObjectInterface)

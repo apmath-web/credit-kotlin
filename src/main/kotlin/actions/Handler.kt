@@ -2,8 +2,8 @@ package actions
 
 import actions.credit.Create
 import io.netty.handler.codec.http.*
-import repositories.CreditsRepository
-import repositories.CreditsRepositoryInterface
+import domain.repositories.CreditsRepository
+import domain.repositories.CreditsRepositoryInterface
 
 class Handler {
     fun handle(request: HttpRequest): FullHttpResponse {
