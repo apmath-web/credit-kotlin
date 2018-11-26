@@ -1,16 +1,18 @@
-package models
+package domain.models
 
-import exceptions.ChangeIdentifiedCreditIdException
-import valueObjects.PaymentInterface
-import valueObjects.PersonInterface
+import domain.data.Money
+import domain.data.Currency
+import domain.exceptions.ChangeIdentifiedCreditIdException
+import domain.valueObjects.PaymentInterface
+import domain.valueObjects.PersonInterface
 import java.time.LocalDate
 
 
 class Credit(
     person: PersonInterface,
-    amount: data.Money,
+    amount: domain.data.Money,
     agreementAt: LocalDate,
-    currency: data.Currency,
+    currency: domain.data.Currency,
     duration: Int,
     percent: Int
 ) : CreditInterface {
@@ -23,9 +25,9 @@ class Credit(
             }
         }
     override val person: PersonInterface = person
-    override val amount: data.Money = amount
+    override val amount: Money = amount
     override val agreementAt: LocalDate = agreementAt
-    override val currency: data.Currency = currency
+    override val currency: Currency = currency
     override val duration: Int = duration
     override val percent: Int = percent
 

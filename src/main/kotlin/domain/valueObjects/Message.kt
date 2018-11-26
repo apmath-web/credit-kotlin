@@ -1,4 +1,4 @@
-package valueObjects
+package domain.valueObjects
 
 
 class Message (text : String, field : String? = null) : MessageInterface {

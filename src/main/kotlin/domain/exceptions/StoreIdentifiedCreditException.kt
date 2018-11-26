@@ -1,4 +1,4 @@
-package exceptions
+package domain.exceptions
 
 import java.lang.Exception
 
