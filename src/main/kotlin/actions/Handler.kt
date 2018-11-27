@@ -4,26 +4,30 @@ import actions.credit.Create
 import io.netty.handler.codec.http.*
 import domain.repositories.CreditsRepository
 import domain.repositories.CreditsRepositoryInterface
+import exceptions.ApiException
+import exceptions.NotFoundException
 
 class Handler {
     fun handle(request: HttpRequest): FullHttpResponse {
-        if (request.uri() == "/credit" && request.method() == HttpMethod.POST) {
-            return Create(repository).handle(request)
+        try {
+            return routeRequest(request)
+        } catch (e : ApiException) {
+            // TODO implement known Exceptions handlers
         }
-        return notFound()
+
+        return DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR)
     }
 
-    private fun notFound(): FullHttpResponse {
-        val response = DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND)
+    private fun routeRequest(request: HttpRequest): FullHttpResponse {
+        when {
+            request.uri() == "/credit" && request.method() == HttpMethod.POST
+                -> return Create(repository).handle(request)
 
-        response.headers().set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON)
-        response.headers().set(HttpHeaderNames.CONTENT_LENGTH, response.content().readableBytes())
-
-        return response;
+        }
+        throw NotFoundException()
     }
 
     companion object {
         private val repository: CreditsRepositoryInterface = CreditsRepository()
     }
-
 }
