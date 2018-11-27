@@ -1,4 +1,4 @@
-package valueObjects
+package domain.valueObjects
 
 class Person(firstName: String, lastName: String) : PersonInterface {
 

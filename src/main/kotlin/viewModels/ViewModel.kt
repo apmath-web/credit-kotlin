@@ -1,10 +1,10 @@
 package viewModels
 
 import org.json.*
-import valueObjects.Message
-import valueObjects.MessageInterface
-import valueObjects.Validation
-import valueObjects.ValidationInterface
+import domain.valueObjects.Message
+import domain.valueObjects.MessageInterface
+import domain.valueObjects.Validation
+import domain.valueObjects.ValidationInterface
 
 
 abstract class ViewModel : ViewModelInterface {

@@ -1,5 +1,3 @@
-package exceptions
-
-import java.lang.Exception
+package domain.exceptions
 
 class StoreIdentifiedCreditException : Exception()

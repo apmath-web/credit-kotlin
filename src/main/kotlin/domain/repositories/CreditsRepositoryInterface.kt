@@ -1,6 +1,6 @@
-package repositories
+package domain.repositories
 
-import models.CreditInterface
+import domain.models.CreditInterface
 
 
 interface CreditsRepositoryInterface {

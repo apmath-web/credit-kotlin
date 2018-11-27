@@ -1,7 +1,7 @@
 package viewModels
 
 import org.json.JSONObject
-import valueObjects.Message
+import domain.valueObjects.Message
 
 
 class Person : ViewModel(), PersonInterface {
@@ -17,7 +17,7 @@ class Person : ViewModel(), PersonInterface {
             .put(LAST_NAME, lastName)
     }
 
-    override fun hydrate(person: valueObjects.PersonInterface) {
+    override fun hydrate(person: domain.valueObjects.PersonInterface) {
         firstName = person.firstName
         lastName = person.lastName
     }

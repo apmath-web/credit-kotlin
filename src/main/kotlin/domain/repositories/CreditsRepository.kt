@@ -1,9 +1,9 @@
-package repositories
+package domain.repositories
 
-import exceptions.RemoveAbsentCreditException
-import exceptions.RemoveUnidentifiedCreditException
-import exceptions.StoreIdentifiedCreditException
-import models.CreditInterface
+import domain.exceptions.RemoveAbsentCreditException
+import domain.exceptions.RemoveUnidentifiedCreditException
+import domain.exceptions.StoreIdentifiedCreditException
+import domain.models.CreditInterface
 
 
 class CreditsRepository : CreditsRepositoryInterface {

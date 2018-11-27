@@ -1,4 +1,4 @@
-package valueObjects
+package domain.valueObjects
 
 interface ValidationInterface {
     val messages : MutableList<MessageInterface>

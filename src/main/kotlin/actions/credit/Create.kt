@@ -3,7 +3,7 @@ package actions.credit
 import io.netty.buffer.Unpooled
 import io.netty.handler.codec.http.*
 import io.netty.util.CharsetUtil
-import repositories.CreditsRepositoryInterface
+import domain.repositories.CreditsRepositoryInterface
 
 class Create(private val repository: CreditsRepositoryInterface) {
     fun handle(request: HttpRequest): FullHttpResponse {

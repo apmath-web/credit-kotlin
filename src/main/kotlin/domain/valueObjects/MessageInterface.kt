@@ -1,4 +1,4 @@
-package valueObjects
+package domain.valueObjects
 
 
 interface MessageInterface {

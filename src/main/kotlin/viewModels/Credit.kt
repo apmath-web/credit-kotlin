@@ -1,25 +1,25 @@
 package viewModels
 
-import data.Currency
-import data.Money
+import domain.data.Currency
+import domain.data.Money
 import org.json.*
-import valueObjects.Message
+import domain.valueObjects.Message
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
-import valueObjects.PersonInterface as PersonValueObjectInterface
-import valueObjects.Person as PersonValueObject
-import models.CreditInterface as CreditModelInterface
+import domain.valueObjects.PersonInterface as PersonValueObjectInterface
+import domain.valueObjects.Person as PersonValueObject
+import domain.models.CreditInterface as CreditModelInterface
 
 
 class Credit : ViewModel(), CreditInterface {
     override var person: PersonInterface? = null
         private set
-    override var amount: data.Money? = null
+    override var amount: Money? = null
         private set
     override var agreementAt: LocalDate? = null
         private set
-    override var currency: data.Currency? = null
+    override var currency: Currency? = null
         private set
     override var duration: Int? = null
         private set
@@ -31,10 +31,10 @@ class Credit : ViewModel(), CreditInterface {
             .put(PERSON, person?.fetchJson())
             .put(AMOUNT, amount?.value)
             .put(AGREEMENT_AT, (agreementAt as LocalDate).format(DateTimeFormatter.ISO_DATE))
-            .put(CURRENCY, when (currency as data.Currency) {
-                data.Currency.USD   -> "USD"
-                data.Currency.EUR   -> "EUR"
-                data.Currency.RUR   -> "RUR"
+            .put(CURRENCY, when (currency as Currency) {
+                Currency.USD   -> "USD"
+                Currency.EUR   -> "EUR"
+                Currency.RUR   -> "RUR"
             })
             .put(DURATION, duration)
             .put(PERCENT, percent)
