@@ -1,5 +1,6 @@
 package domain.repositories
 
+import domain.exceptions.CreditNotFoundException
 import domain.exceptions.RemoveAbsentCreditException
 import domain.exceptions.RemoveUnidentifiedCreditException
 import domain.exceptions.StoreIdentifiedCreditException
@@ -10,8 +11,8 @@ class CreditsRepository : CreditsRepositoryInterface {
     private var identity: Int = 1
     private val credits: HashMap<Int, CreditInterface> = hashMapOf()
 
-    override fun get(id: Int): CreditInterface? {
-        return credits[id]
+    override fun get(id: Int): CreditInterface {
+        return credits[id] ?: throw CreditNotFoundException()
     }
 
     override fun store(credit: CreditInterface) {
