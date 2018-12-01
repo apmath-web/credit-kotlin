@@ -5,6 +5,7 @@ import domain.valueObjects.Message
 import domain.valueObjects.MessageInterface
 import domain.valueObjects.Validation
 import domain.valueObjects.ValidationInterface
+import exceptions.BadRequestException
 
 
 abstract class ViewModel : ViewModelInterface {
@@ -16,8 +17,7 @@ abstract class ViewModel : ViewModelInterface {
         try {
             jsonObject = JSONObject(json)
         } catch (e: JSONException) {
-            addMessage(Message(MESSAGE_INVALID_JSON))
-            return false
+            throw BadRequestException("Invalid Json format")
         }
         return loadAndValidate(jsonObject)
     }
