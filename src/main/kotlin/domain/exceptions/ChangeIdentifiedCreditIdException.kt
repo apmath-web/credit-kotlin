@@ -1,3 +1,3 @@
 package domain.exceptions
 
-class ChangeIdentifiedCreditIdException : Exception()
+class ChangeIdentifiedCreditIdException : RuntimeException()

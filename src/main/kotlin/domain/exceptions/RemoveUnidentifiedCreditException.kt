@@ -1,3 +1,3 @@
 package domain.exceptions
 
-class RemoveUnidentifiedCreditException : Exception()
+class RemoveUnidentifiedCreditException : RuntimeException()

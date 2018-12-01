@@ -1,3 +1,3 @@
 package domain.exceptions
 
-class RemoveAbsentCreditException : Exception()
+class RemoveAbsentCreditException : RuntimeException()

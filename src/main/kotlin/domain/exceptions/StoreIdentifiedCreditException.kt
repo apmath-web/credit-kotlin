@@ -1,3 +1,3 @@
 package domain.exceptions
 
-class StoreIdentifiedCreditException : Exception()
+class StoreIdentifiedCreditException : RuntimeException()
