@@ -12,10 +12,10 @@ class Handler {
         try {
             return routeRequest(request)
         } catch (e : ApiException) {
-            // TODO implement known Exceptions handlers
+            return getResponse(e)
+        } catch (e: Throwable) {
+            return getResponse(e);
         }
-
-        return DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR)
     }
 
     private fun routeRequest(request: HttpRequest): FullHttpResponse {
@@ -24,7 +24,15 @@ class Handler {
                 -> return Create(repository).handle(request)
 
         }
-        throw NotFoundException()
+        throw NotFoundException("Route not found")
+    }
+
+    private fun getResponse(e: ApiException): FullHttpResponse {
+        return DefaultFullHttpResponse(HttpVersion.HTTP_1_1, e.status)
+    }
+
+    private fun getResponse(e: Throwable): FullHttpResponse {
+        return DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR)
     }
 
     companion object {
