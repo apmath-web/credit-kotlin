@@ -36,13 +36,13 @@ abstract class ViewModel : ViewModelInterface {
     protected fun loadNotNullRequiredField(json: JSONObject, field: String): Any?
     {
         if (!json.has(field)) {
-            addMessage(Message(MESSAGE_REQUIRED, field))
+            addMessage(Message(field, MESSAGE_REQUIRED))
             return null
         }
 
         val raw = json.get(field)
         if (raw == null) {
-            addMessage(Message(MESSAGE_NOT_NULL, field))
+            addMessage(Message(field, MESSAGE_NOT_NULL))
             return null
         }
         return raw
