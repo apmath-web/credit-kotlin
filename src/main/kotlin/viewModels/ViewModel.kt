@@ -17,7 +17,7 @@ abstract class ViewModel : ViewModelInterface {
         try {
             jsonObject = JSONObject(json)
         } catch (e: JSONException) {
-            throw BadRequestException("Invalid Json format")
+            throw BadRequestException(MESSAGE_INVALID_JSON)
         }
         return loadAndValidate(jsonObject)
     }
