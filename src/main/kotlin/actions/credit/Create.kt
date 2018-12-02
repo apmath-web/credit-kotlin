@@ -1,19 +1,17 @@
 package actions.credit
 
-import io.netty.buffer.Unpooled
+import actions.AbstractHandler
 import io.netty.handler.codec.http.*
-import io.netty.util.CharsetUtil
 import domain.repositories.CreditsRepositoryInterface
+import org.json.JSONObject
 
-class Create(private val repository: CreditsRepositoryInterface) {
-    fun handle(request: HttpRequest): FullHttpResponse {
-        val json = Unpooled.copiedBuffer("{\"id\":1}", CharsetUtil.UTF_8)
 
-        val response = DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, json)
+class Create(private val repository: CreditsRepositoryInterface) : AbstractHandler() {
 
-        response.headers().set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON)
-        response.headers().set(HttpHeaderNames.CONTENT_LENGTH, response.content().readableBytes())
+    override fun handle(request: HttpRequest): FullHttpResponse {
 
-        return response;
+        val json = JSONObject().put("id", 1)
+
+        return  getResponse(HttpResponseStatus.OK, json)
     }
 }

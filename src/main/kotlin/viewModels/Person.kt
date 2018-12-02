@@ -34,13 +34,13 @@ class Person : ViewModel(), PersonInterface {
         val raw = loadNotNullRequiredField(json, FIRST_NAME) ?: return false
 
         if (raw !is String) {
-            addMessage(Message(MESSAGE_NOT_STRING, FIRST_NAME))
+            addMessage(Message(FIRST_NAME, MESSAGE_NOT_STRING))
             return false
         }
 
         val string: String = raw
         if (string.isEmpty()) {
-            addMessage(Message(STRING_1_CHARACTER, FIRST_NAME))
+            addMessage(Message(FIRST_NAME, STRING_1_CHARACTER))
             return false
         }
 
@@ -53,13 +53,13 @@ class Person : ViewModel(), PersonInterface {
         val raw = loadNotNullRequiredField(json, LAST_NAME) ?: return false
 
         if (raw !is String) {
-            addMessage(Message(MESSAGE_NOT_STRING, LAST_NAME))
+            addMessage(Message(LAST_NAME, MESSAGE_NOT_STRING))
             return false
         }
 
         val string: String = raw
         if (string.isEmpty()) {
-            addMessage(Message(STRING_1_CHARACTER, LAST_NAME))
+            addMessage(Message(LAST_NAME, STRING_1_CHARACTER))
             return false
         }
 

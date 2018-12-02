@@ -67,14 +67,14 @@ class Credit : ViewModel(), CreditInterface {
         val raw = loadNotNullRequiredField(json, PERSON) ?: return false
 
         if (raw !is JSONObject) {
-            addMessage(Message(MESSAGE_NOT_OBJECT, PERSON))
+            addMessage(Message(PERSON, MESSAGE_NOT_OBJECT))
             return false
         }
 
         val rawPerson = Person()
         if (!rawPerson.loadAndValidate(raw)) {
             rawPerson.validation.messages.forEach{
-                addMessage(Message(it.text, "${PERSON}.${it.field}"))
+                addMessage(Message("${PERSON}.${it.field}", it.text))
             }
             return false
         }
@@ -88,14 +88,14 @@ class Credit : ViewModel(), CreditInterface {
         val raw = loadNotNullRequiredField(json, AMOUNT) ?: return false
 
         if ((raw !is Long) && (raw !is Int)) {
-            addMessage(Message(MESSAGE_NOT_LONG, AMOUNT))
+            addMessage(Message(AMOUNT, MESSAGE_NOT_LONG))
             return false
         }
 
         val long: Long = if (raw is Int) raw.toLong() else raw as Long
 
         if (long < 1 || long > 3000000000000000L) {
-            addMessage(Message("Must be between 1 and 3000000000000000", AMOUNT))
+            addMessage(Message(AMOUNT, "Must be between 1 and 3000000000000000"))
             return false
         }
 
@@ -112,17 +112,17 @@ class Credit : ViewModel(), CreditInterface {
         val raw = json.get(AGREEMENT_AT) ?: return true
 
         if (raw !is String) {
-            addMessage(Message(MESSAGE_NOT_STRING, AGREEMENT_AT))
+            addMessage(Message(AGREEMENT_AT, MESSAGE_NOT_STRING))
             return false
         }
 
         if (!Regex("^[0-9]{4}-[0-9]{2}-[0-9]{2}$").matches(raw)) {
-            addMessage(Message(MESSAGE_NOT_DATE, AGREEMENT_AT))
+            addMessage(Message(AGREEMENT_AT, MESSAGE_NOT_DATE))
             return false
         }
 
         agreementAt = try { LocalDate.parse(raw, DateTimeFormatter.ISO_DATE) } catch (e: DateTimeParseException) {
-            addMessage(Message(MESSAGE_DATE_INVALID, AGREEMENT_AT))
+            addMessage(Message(AGREEMENT_AT, MESSAGE_DATE_INVALID))
             return false
         }
 
@@ -134,7 +134,7 @@ class Credit : ViewModel(), CreditInterface {
         val raw = loadNotNullRequiredField(json, CURRENCY) ?: return false
 
         if (raw !is String) {
-            addMessage(Message(MESSAGE_NOT_STRING, CURRENCY))
+            addMessage(Message(CURRENCY, MESSAGE_NOT_STRING))
             return false
         }
 
@@ -146,7 +146,7 @@ class Credit : ViewModel(), CreditInterface {
         }
 
         if (currency == null) {
-            addMessage(Message(MESSAGE_CURRENCY_UNKNOWN, CURRENCY))
+            addMessage(Message(CURRENCY, MESSAGE_CURRENCY_UNKNOWN))
             return false
         }
 
@@ -158,13 +158,13 @@ class Credit : ViewModel(), CreditInterface {
         val raw = loadNotNullRequiredField(json, DURATION) ?: return false
 
         if (raw !is Int) {
-            addMessage(Message(MESSAGE_NOT_INT, DURATION))
+            addMessage(Message(DURATION, MESSAGE_NOT_INT))
             return false
         }
 
         val int: Int = raw
         if (int < 6 || int > 1200) {
-            addMessage(Message("Must be between 6 and 1200", DURATION))
+            addMessage(Message(DURATION, "Must be between 6 and 1200"))
             return false
         }
 
@@ -177,13 +177,13 @@ class Credit : ViewModel(), CreditInterface {
         val raw = loadNotNullRequiredField(json, PERCENT) ?: return false
 
         if (raw !is Int) {
-            addMessage(Message(MESSAGE_NOT_LONG, PERCENT))
+            addMessage(Message(PERCENT, MESSAGE_NOT_LONG))
             return false
         }
 
         val int: Int = raw
         if (int < 1 || int > 300) {
-            addMessage(Message("Must be between 1 and 300", PERCENT))
+            addMessage(Message(PERCENT, "Must be between 1 and 300"))
             return false
         }
 

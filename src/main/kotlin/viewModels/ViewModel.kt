@@ -5,6 +5,7 @@ import domain.valueObjects.Message
 import domain.valueObjects.MessageInterface
 import domain.valueObjects.Validation
 import domain.valueObjects.ValidationInterface
+import exceptions.BadRequestException
 
 
 abstract class ViewModel : ViewModelInterface {
@@ -16,8 +17,7 @@ abstract class ViewModel : ViewModelInterface {
         try {
             jsonObject = JSONObject(json)
         } catch (e: JSONException) {
-            addMessage(Message(MESSAGE_INVALID_JSON))
-            return false
+            throw BadRequestException(MESSAGE_INVALID_JSON)
         }
         return loadAndValidate(jsonObject)
     }
@@ -36,13 +36,13 @@ abstract class ViewModel : ViewModelInterface {
     protected fun loadNotNullRequiredField(json: JSONObject, field: String): Any?
     {
         if (!json.has(field)) {
-            addMessage(Message(MESSAGE_REQUIRED, field))
+            addMessage(Message(field, MESSAGE_REQUIRED))
             return null
         }
 
         val raw = json.get(field)
         if (raw == null) {
-            addMessage(Message(MESSAGE_NOT_NULL, field))
+            addMessage(Message(field, MESSAGE_NOT_NULL))
             return null
         }
         return raw
