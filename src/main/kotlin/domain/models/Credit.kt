@@ -35,12 +35,14 @@ class Credit(
     override val percent: Int = percent
 
     private val rounding: Int
-    private val currentRegularPayment: Money
+    private var regularPayment: Money
+    private val payments: MutableList<PaymentInterface> = arrayListOf()
+    private var remainAmount: Money = amount
 
     init {
         val annuityPayment = getAnnuityPayment()
         rounding = getRounding(annuityPayment)
-        currentRegularPayment = getRegularPayment(annuityPayment)
+        regularPayment = getRegularPayment(annuityPayment)
     }
 
     override fun getPayments(type: String?, state: String?): List<PaymentInterface> {
