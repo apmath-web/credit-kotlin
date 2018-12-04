@@ -49,6 +49,7 @@ abstract class ViewModel : ViewModelInterface {
     }
 
     companion object {
+        const val DATE_FORMATE                  = "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
         const val MESSAGE_INVALID_JSON          = "Invalid JSON format"
         const val MESSAGE_REQUIRED              = "Is required"
         const val MESSAGE_NOT_NULL              = "Must be not null"
@@ -59,5 +60,7 @@ abstract class ViewModel : ViewModelInterface {
         const val MESSAGE_NOT_DATE              = "Must be a YYYY-MM-DD date"
         const val MESSAGE_DATE_INVALID          = "Must be a valid date"
         const val MESSAGE_CURRENCY_UNKNOWN      = "Must be a valid currency ['RUR', 'USD', 'EUR'] allowed"
+        const val MESSAGE_STATE_UNKNOWN         = "Must be a valid currency ['PAID', 'UPCOMING'] allowed"
+        const val MESSAGE_TYPE_UNKNOWN          = "Must be a valid type ['REGULAR', 'EARLY', 'NEXT'] allowed"
     }
 }
