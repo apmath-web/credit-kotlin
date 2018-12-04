@@ -116,7 +116,7 @@ class Credit : ViewModel(), CreditInterface {
             return false
         }
 
-        if (!Regex("^[0-9]{4}-[0-9]{2}-[0-9]{2}$").matches(raw)) {
+        if (!Regex(DATE_FORMATE).matches(raw)) {
             addMessage(Message(AGREEMENT_AT, MESSAGE_NOT_DATE))
             return false
         }

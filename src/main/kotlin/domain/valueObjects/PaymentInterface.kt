@@ -6,15 +6,14 @@ import domain.data.Money
 import domain.data.Currency
 import java.time.LocalDate
 
-
 interface PaymentInterface {
-    fun getPayment(): Money
-    fun getType(): Type
-    fun getCurrency(): Currency
-    fun getDate(): LocalDate
-    fun getState(): State
-    fun getPercent(): Money
-    fun getBody(): Money
-    fun getRemainCreditBody(): Money
-    fun getFullEarlyRepayment(): Money
+    val payment: Money
+    val type: Type
+    val currency: Currency
+    val date: LocalDate
+    val state: State
+    val percent: Money
+    val body: Money
+    val remainCreditBody: Money
+    val fullEarlyRepayment: Money
 }
