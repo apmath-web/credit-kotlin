@@ -129,15 +129,15 @@ class Payment(
     }
 
     override fun fetchJson(): JSONObject {
-        TODO("Should be here?")
-        /*return JSONObject()
+        //TODO("Should be here?")
+        return JSONObject()
             .put("type", type)
             .put("state", state)
             .put("date", date)
             .put("payment", payment)
-            .put("percent", percent)
-            .put("body", body)
-            .put("remainCreditBody", remaindCreditbody)*/
+            //.put("percent", percent)
+            //.put("body", body)
+            //.put("remainCreditBody", remaindCreditbody)
     }
 
     companion object {
