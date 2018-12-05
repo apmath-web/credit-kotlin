@@ -15,7 +15,7 @@ class ServerHandler : ChannelInboundHandlerAdapter() {
 
     @Throws(Exception::class)
     override fun channelRead(ctx: ChannelHandlerContext, msg: Any) {
-        if (msg is HttpRequest) {
+        if (msg is FullHttpRequest) {
             val response = Handler().handle(msg)
             ctx.write(response).addListener(ChannelFutureListener.CLOSE)
         }
