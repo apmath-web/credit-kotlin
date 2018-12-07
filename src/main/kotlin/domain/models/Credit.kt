@@ -7,15 +7,15 @@ import domain.valueObjects.PaymentInterface
 import domain.valueObjects.PersonInterface
 import java.time.LocalDate
 
-
 class Credit(
-    person: PersonInterface,
-    amount: domain.data.Money,
-    agreementAt: LocalDate,
-    currency: domain.data.Currency,
-    duration: Int,
-    percent: Int
+    override val person: PersonInterface,
+    override val amount: Money,
+    override val agreementAt: LocalDate,
+    override val currency: Currency,
+    override val duration: Int,
+    override val percent: Int
 ) : CreditInterface {
+    private val payments: ArrayList<PaymentInterface> = arrayListOf()
     override var id: Int? = null
         set(value) {
             if (field == null) {
@@ -24,19 +24,12 @@ class Credit(
                 throw ChangeIdentifiedCreditIdException()
             }
         }
-    override val person: PersonInterface = person
-    override val amount: Money = amount
-    override val agreementAt: LocalDate = agreementAt
-    override val currency: Currency = currency
-    override val duration: Int = duration
-    override val percent: Int = percent
 
-    override fun getPayments(type: String?, state: String?): List<PaymentInterface> {
-        // TODO
-        return arrayListOf()
+    override fun getPayments(type: String?, state: String?): ArrayList<PaymentInterface> {
+        return payments
     }
 
     override fun writeOf(payment: PaymentInterface) {
-        // TODO
+        payments.add(payment)
     }
 }
