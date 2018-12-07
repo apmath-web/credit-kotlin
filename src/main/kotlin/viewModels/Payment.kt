@@ -20,23 +20,15 @@ class Payment(
     override var date: LocalDate,
     override var state: State
 ) : ViewModel(), PaymentInterface {
-    /*override var state: State = State.PAID
-    private var percent: String
-    private var body: String
-    private var remaindCreditbody: String*/
 
     override val validation: ValidationInterface = Validation()
 
     override fun hydrate(payment: PaymentInterfaceValueObject) {
-        TODO("Should be?")
-        /*this.type = payment.type
-        state = payment.state
+        this.payment = payment.payment
+        type = payment.type
+        currency = payment.currency
         date = payment.date
-        this.payment=payment.payment
-        percent=payment.percent
-        body=payment.body
-        remaindCreditbody=payment.remainCreditBody
-        fullEarlyRepayment =  payment.fullEarlyRepayment*/
+        state = payment.state
     }
 
     override fun loadAndValidate(json: JSONObject): Boolean {
@@ -129,15 +121,11 @@ class Payment(
     }
 
     override fun fetchJson(): JSONObject {
-        //TODO("Should be here?")
         return JSONObject()
-            .put("type", type)
-            .put("state", state)
-            .put("date", date)
-            .put("payment", payment)
-            //.put("percent", percent)
-            //.put("body", body)
-            //.put("remainCreditBody", remaindCreditbody)
+            .put(PAYMENT, payment)
+            .put(TYPE, type)
+            .put(CURRENCY, currency)
+            .put(DATE, date)
     }
 
     companion object {
