@@ -10,6 +10,12 @@ abstract class AbstractHandler {
 
     abstract fun handle(request: FullHttpRequest): FullHttpResponse
 
+    protected fun getResponse(status: HttpResponseStatus): FullHttpResponse {
+
+        return DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status)
+
+    }
+
     protected fun getResponse(status: HttpResponseStatus, json: JSONObject): FullHttpResponse {
 
         return getResponse(status, json.toString())
