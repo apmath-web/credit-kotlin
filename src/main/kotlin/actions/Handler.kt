@@ -12,7 +12,7 @@ import org.json.JSONObject
 
 class Handler : AbstractHandler() {
 
-    override fun handle(request: HttpRequest): FullHttpResponse {
+    override fun handle(request: FullHttpRequest): FullHttpResponse {
 
         try {
             return routeRequest(request)
@@ -27,7 +27,7 @@ class Handler : AbstractHandler() {
         }
     }
 
-    private fun routeRequest(request: HttpRequest): FullHttpResponse {
+    private fun routeRequest(request: FullHttpRequest): FullHttpResponse {
 
         when {
             request.uri() == "/credit" && request.method() == HttpMethod.POST
