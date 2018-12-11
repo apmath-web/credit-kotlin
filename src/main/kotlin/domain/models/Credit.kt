@@ -43,6 +43,7 @@ class Credit(
     }
 
     override fun writeOf(payment: PaymentInterface) {
+        //TODO check valid payment
         payments.add(payment)
     }
 
