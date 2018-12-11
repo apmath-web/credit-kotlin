@@ -19,7 +19,6 @@ class Payment : ViewModel(), PaymentInterface {
     override var date: LocalDate? = null
     override var state: State? = null
     override var payment: Money? = null
-    override val validation: ValidationInterface = Validation()
 
     override fun hydrate(payment: PaymentInterfaceValueObject) {
         this.payment = payment.payment
@@ -67,8 +66,10 @@ class Payment : ViewModel(), PaymentInterface {
             return false
         }
 
+        raw.toUpperCase()
+
         try {
-            currency = Currency.valueOf(raw)
+            currency = Currency.valueOf(raw.toUpperCase())
         } catch (e: IllegalArgumentException) {
             addMessage(Message(CURRENCY, MESSAGE_CURRENCY_UNKNOWN))
             return false
@@ -84,6 +85,8 @@ class Payment : ViewModel(), PaymentInterface {
             addMessage(Message(TYPE, MESSAGE_NOT_STRING))
             return false
         }
+
+        raw.toUpperCase()
 
         try {
             type = Type.valueOf(raw)
@@ -127,10 +130,11 @@ class Payment : ViewModel(), PaymentInterface {
     }
 
     companion object {
-        const val PAYMENT = "payment"
-        const val TYPE = "type"
-        const val CURRENCY = "currency"
-        const val DATE = "date"
+        const val PAYMENT               = "payment"
+        const val TYPE                  = "type"
+        const val CURRENCY              = "currency"
+        const val DATE                  = "date"
+        const val MESSAGE_STATE_UNKNOWN = "Must be a valid state ['PAID', 'UPCOMING'] allowed"
     }
 
 }
