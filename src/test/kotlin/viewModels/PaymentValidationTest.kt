@@ -55,4 +55,52 @@ class PaymentValidationTest {
         assertFalse { payment.loadAndValidate(jsonObject) }
         assertEquals(payment.validation.messages.size, 2)
     }
+
+    @Test
+    fun paymentNullWithErrorValidation() {
+        val payment = Payment()
+        val jsonObject =
+            JSONObject(
+                mapOf(
+                    "payment" to 2955,
+                    "type" to null,
+                    "currency" to "USD",
+                    "date" to "error"
+                )
+            )
+        assertFalse { payment.loadAndValidate(jsonObject) }
+        assertEquals(payment.validation.messages.size, 1)
+    }
+
+    @Test
+    fun paymentMoreNullValidation() {
+        val payment = Payment()
+        val jsonObject =
+            JSONObject(
+                mapOf(
+                    "payment" to 2955,
+                    "type" to null,
+                    "currency" to null,
+                    "date" to null
+                )
+            )
+        assertTrue { payment.loadAndValidate(jsonObject) }
+        assertEquals(payment.validation.messages.size, 0)
+    }
+
+    @Test
+    fun paymentPaymentNullValidation() {
+        val payment = Payment()
+        val jsonObject =
+            JSONObject(
+                mapOf(
+                    "payment" to null,
+                    "type" to "error",
+                    "currency" to "error",
+                    "date" to "2018-09-08"
+                )
+            )
+        assertFalse { payment.loadAndValidate(jsonObject) }
+        assertEquals(payment.validation.messages.size, 3)
+    }
 }
