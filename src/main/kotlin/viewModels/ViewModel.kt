@@ -1,12 +1,14 @@
 package viewModels
 
+import domain.exceptions.WrongFieldException
 import org.json.*
 import domain.valueObjects.Message
 import domain.valueObjects.MessageInterface
 import domain.valueObjects.Validation
 import domain.valueObjects.ValidationInterface
 import exceptions.BadRequestException
-
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 abstract class ViewModel : ViewModelInterface {
 
@@ -24,17 +26,15 @@ abstract class ViewModel : ViewModelInterface {
 
     abstract fun loadAndValidate(json: JSONObject): Boolean
 
-    override fun fetch(): String
-    {
+    override fun fetch(): String {
         return fetchJson().toString()
     }
 
-    protected fun addMessage(message : MessageInterface) {
+    protected fun addMessage(message: MessageInterface) {
         validation.addMessage(message)
     }
 
-    protected fun loadNotNullRequiredField(json: JSONObject, field: String): Any?
-    {
+    protected fun loadNotNullRequiredField(json: JSONObject, field: String): Any? {
         if (!json.has(field)) {
             addMessage(Message(field, MESSAGE_REQUIRED))
             return null
@@ -46,6 +46,20 @@ abstract class ViewModel : ViewModelInterface {
             return null
         }
         return raw
+    }
+
+    protected fun loadNullableNotRequiredField(json: JSONObject, field: String): Any {
+        return if (!json.has(field)) {
+            when (field) {
+                "type" -> "REGULAR"
+                "currency" -> "USD"
+                "date" -> LocalDate.now().format(DateTimeFormatter.ISO_DATE)
+                else -> {
+                    WrongFieldException(field)
+                }
+            }
+        } else
+            json.get(field)
     }
 
     companion object {
