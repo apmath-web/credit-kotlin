@@ -44,11 +44,7 @@ class Payment : ViewModel(), PaymentInterface {
     }
 
     private fun loadAndValidateDate(json: JSONObject): Boolean {
-        if (!json.has(DATE)) {
-            return true
-        }
-
-        val raw = json.get(DATE) ?: return true
+        val raw = loadNullableNotRequiredField(json, DATE)
 
         if (raw !is String) {
             addMessage(Message(DATE, MESSAGE_NOT_STRING))
@@ -71,11 +67,7 @@ class Payment : ViewModel(), PaymentInterface {
     }
 
     private fun loadAndValidateCurrency(json: JSONObject): Boolean {
-        if (!json.has(CURRENCY)) {
-            return true
-        }
-
-        val raw = json.get(CURRENCY) ?: return true
+        val raw = loadNullableNotRequiredField(json, CURRENCY)
 
         if (raw !is String) {
             addMessage(Message(CURRENCY, MESSAGE_NOT_STRING))
@@ -93,12 +85,7 @@ class Payment : ViewModel(), PaymentInterface {
     }
 
     private fun loadAndValidateType(json: JSONObject): Boolean {
-
-        if (!json.has(TYPE)) {
-            return true
-        }
-
-        val raw = json.get(TYPE) ?: return true
+        val raw = loadNullableNotRequiredField(json, TYPE)
 
         if (raw !is String) {
             addMessage(Message(TYPE, MESSAGE_NOT_STRING))
@@ -126,7 +113,7 @@ class Payment : ViewModel(), PaymentInterface {
         val long: Long = if (raw is Int) raw.toLong() else raw as Long
 
         if (long < 1 || long > 3750000000000000) {
-            addMessage(Message(PAYMENT, PAYMENT_BORDERS))
+            addMessage(Message(PAYMENT, "Must be between 1 and 3750000000000000"))
             return false
         }
 
@@ -152,17 +139,15 @@ class Payment : ViewModel(), PaymentInterface {
     }
 
     companion object {
-        const val TYPE = "type"
-        const val STATE = "state"
-        const val DATE = "date"
-        const val CURRENCY = "currency"
-        const val PAYMENT = "payment"
-        const val PERCENT = "percent"
-        const val BODY = "body"
-        const val REMAIN_CREDIT_BODY = "remainCreditBody"
-        const val FULL_EARLY_REPAYMENT = "fullEarlyRepayment"
-
-        const val PAYMENT_BORDERS = "Must be between 1 and 3750000000000000"
+        const val TYPE                  = "type"
+        const val STATE                 = "state"
+        const val DATE                  = "date"
+        const val CURRENCY              = "currency"
+        const val PAYMENT               = "payment"
+        const val PERCENT               = "percent"
+        const val BODY                  = "body"
+        const val REMAIN_CREDIT_BODY    = "remainCreditBody"
+        const val FULL_EARLY_REPAYMENT  = "fullEarlyRepayment"
     }
 
 }
