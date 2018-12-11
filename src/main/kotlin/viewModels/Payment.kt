@@ -44,7 +44,11 @@ class Payment : ViewModel(), PaymentInterface {
     }
 
     private fun loadAndValidateDate(json: JSONObject): Boolean {
-        val raw = loadNotNullRequiredField(json, DATE) ?: return false
+        if (!json.has(DATE)) {
+            return true
+        }
+
+        val raw = json.get(DATE) ?: return true
 
         if (raw !is String) {
             addMessage(Message(DATE, MESSAGE_NOT_STRING))
@@ -67,14 +71,16 @@ class Payment : ViewModel(), PaymentInterface {
     }
 
     private fun loadAndValidateCurrency(json: JSONObject): Boolean {
-        val raw = loadNotNullRequiredField(json, CURRENCY) ?: return false
+        if (!json.has(CURRENCY)) {
+            return true
+        }
+
+        val raw = json.get(CURRENCY) ?: return true
 
         if (raw !is String) {
             addMessage(Message(CURRENCY, MESSAGE_NOT_STRING))
             return false
         }
-
-        raw.toUpperCase()
 
         try {
             currency = Currency.valueOf(raw.toUpperCase())
@@ -87,14 +93,17 @@ class Payment : ViewModel(), PaymentInterface {
     }
 
     private fun loadAndValidateType(json: JSONObject): Boolean {
-        val raw = loadNotNullRequiredField(json, TYPE) ?: return false
+
+        if (!json.has(TYPE)) {
+            return true
+        }
+
+        val raw = json.get(TYPE) ?: return true
 
         if (raw !is String) {
             addMessage(Message(TYPE, MESSAGE_NOT_STRING))
             return false
         }
-
-        raw.toUpperCase()
 
         try {
             type = Type.valueOf(raw)
@@ -116,8 +125,8 @@ class Payment : ViewModel(), PaymentInterface {
 
         val long: Long = if (raw is Int) raw.toLong() else raw as Long
 
-        if (long < 1 || long > 3000000000000000) {
-            addMessage(Message(PAYMENT, "Must be between 1 and 3000000000000000"))
+        if (long < 1 || long > 3750000000000000) {
+            addMessage(Message(PAYMENT, PAYMENT_BORDERS))
             return false
         }
 
@@ -152,6 +161,8 @@ class Payment : ViewModel(), PaymentInterface {
         const val BODY = "body"
         const val REMAIN_CREDIT_BODY = "remainCreditBody"
         const val FULL_EARLY_REPAYMENT = "fullEarlyRepayment"
+
+        const val PAYMENT_BORDERS = "Must be between 1 and 3750000000000000"
     }
 
 }
