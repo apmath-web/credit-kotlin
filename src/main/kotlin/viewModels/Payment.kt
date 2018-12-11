@@ -13,14 +13,12 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
-class Payment(
-    override var payment: Money,
-    override var type: Type,
-    override var currency: Currency,
-    override var date: LocalDate,
-    override var state: State
-) : ViewModel(), PaymentInterface {
-
+class Payment : ViewModel(), PaymentInterface {
+    override var type: Type? = null
+    override var currency: Currency? = null
+    override var date: LocalDate? = null
+    override var state: State? = null
+    override var payment: Money? = null
     override val validation: ValidationInterface = Validation()
 
     override fun hydrate(payment: PaymentInterfaceValueObject) {
@@ -39,7 +37,7 @@ class Payment(
     }
 
     private fun loadAndValidateDate(json: JSONObject): Boolean {
-        val raw = loadNotNullRequiredField(json, CURRENCY) ?: return false
+        val raw = loadNotNullRequiredField(json, DATE) ?: return false
 
         if (raw !is String) {
             addMessage(Message(DATE, MESSAGE_NOT_STRING))
@@ -88,7 +86,7 @@ class Payment(
         }
 
         try {
-            currency = Currency.valueOf(raw)
+            type = Type.valueOf(raw)
         } catch (e: IllegalArgumentException) {
             addMessage(Message(TYPE, MESSAGE_TYPE_UNKNOWN))
             return false
@@ -101,14 +99,14 @@ class Payment(
         val raw = loadNotNullRequiredField(json, PAYMENT) ?: return false
 
         if ((raw !is Long) && (raw !is Int)) {
-            addMessage(Message(Credit.AMOUNT, MESSAGE_NOT_INT))
+            addMessage(Message(PAYMENT, MESSAGE_NOT_INT))
             return false
         }
 
         val long: Long = if (raw is Int) raw.toLong() else raw as Long
 
         if (long < 1 || long > 3000000000000000) {
-            addMessage(Message(Credit.AMOUNT, "Must be between 1 and 3000000000000000"))
+            addMessage(Message(PAYMENT, "Must be between 1 and 3000000000000000"))
             return false
         }
 
@@ -129,10 +127,10 @@ class Payment(
     }
 
     companion object {
-        const val PAYMENT = "currency"
-        const val TYPE = "person"
-        const val CURRENCY = "amount"
-        const val DATE = "agreementAt"
+        const val PAYMENT = "payment"
+        const val TYPE = "type"
+        const val CURRENCY = "currency"
+        const val DATE = "date"
     }
 
 }

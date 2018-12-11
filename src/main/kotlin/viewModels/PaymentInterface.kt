@@ -9,9 +9,9 @@ import domain.valueObjects.PaymentInterface as PaymentValueObjectInterface
 
 interface PaymentInterface : ViewModelInterface {
     fun hydrate(payment: PaymentValueObjectInterface)
-    val payment: Money
-    val type: Type
-    val currency: Currency
-    val date: LocalDate
-    val state: State
+    val payment: Money?
+    val type: Type?
+    val currency: Currency?
+    val date: LocalDate?
+    val state: State?
 }
