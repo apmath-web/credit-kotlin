@@ -1,17 +1,18 @@
 package viewModels
 
 import org.json.JSONObject
-import org.junit.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
+import org.junit.Assert
+import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
+import java.util.stream.Stream
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PaymentValidationTest {
 
-    @Test
-    fun paymentTrueValidation() {
-        val payment = Payment()
-        val jsonObject =
+    private fun jsonProvider() = Stream.of(
+        Arguments.of(
             JSONObject(
                 mapOf(
                     "payment" to 2955,
@@ -19,15 +20,11 @@ class PaymentValidationTest {
                     "currency" to "USD",
                     "date" to "2018-09-08"
                 )
-            )
-        assertTrue { payment.loadAndValidate(jsonObject) }
-        assertEquals(payment.validation.messages.size, 0)
-    }
-
-    @Test
-    fun paymentMiddleFalseValidation() {
-        val payment = Payment()
-        val jsonObject =
+            ),
+            true,
+            0
+        ),
+        Arguments.of(
             JSONObject(
                 mapOf(
                     "payment" to 2955,
@@ -35,15 +32,11 @@ class PaymentValidationTest {
                     "currency" to "error",
                     "date" to "2018-09-08"
                 )
-            )
-        assertFalse { payment.loadAndValidate(jsonObject) }
-        assertEquals(payment.validation.messages.size, 2)
-    }
-
-    @Test
-    fun paymentLastFalseValidation() {
-        val payment = Payment()
-        val jsonObject =
+            ),
+            false,
+            2
+        ),
+        Arguments.of(
             JSONObject(
                 mapOf(
                     "payment" to "error",
@@ -51,15 +44,11 @@ class PaymentValidationTest {
                     "currency" to "USD",
                     "date" to "error"
                 )
-            )
-        assertFalse { payment.loadAndValidate(jsonObject) }
-        assertEquals(payment.validation.messages.size, 2)
-    }
-
-    @Test
-    fun paymentNullWithErrorValidation() {
-        val payment = Payment()
-        val jsonObject =
+            ),
+            false,
+            2
+        ),
+        Arguments.of(
             JSONObject(
                 mapOf(
                     "payment" to 2955,
@@ -67,15 +56,11 @@ class PaymentValidationTest {
                     "currency" to "USD",
                     "date" to "error"
                 )
-            )
-        assertFalse { payment.loadAndValidate(jsonObject) }
-        assertEquals(payment.validation.messages.size, 1)
-    }
-
-    @Test
-    fun paymentMoreNullValidation() {
-        val payment = Payment()
-        val jsonObject =
+            ),
+            false,
+            1
+        ),
+        Arguments.of(
             JSONObject(
                 mapOf(
                     "payment" to 2955,
@@ -83,15 +68,11 @@ class PaymentValidationTest {
                     "currency" to null,
                     "date" to null
                 )
-            )
-        assertTrue { payment.loadAndValidate(jsonObject) }
-        assertEquals(payment.validation.messages.size, 0)
-    }
-
-    @Test
-    fun paymentPaymentNullValidation() {
-        val payment = Payment()
-        val jsonObject =
+            ),
+            true,
+            0
+        ),
+        Arguments.of(
             JSONObject(
                 mapOf(
                     "payment" to null,
@@ -99,8 +80,22 @@ class PaymentValidationTest {
                     "currency" to "error",
                     "date" to "2018-09-08"
                 )
-            )
-        assertFalse { payment.loadAndValidate(jsonObject) }
-        assertEquals(payment.validation.messages.size, 3)
+            ),
+            false,
+            3
+        )
+    )
+
+    @ParameterizedTest
+    @MethodSource("jsonProvider")
+    fun loadAndValidateTest(json: JSONObject, isValid: Boolean, fields: Int) {
+        val payment = Payment()
+
+        if (isValid) {
+            Assert.assertTrue(payment.loadAndValidate(json))
+        } else {
+            Assert.assertFalse(payment.loadAndValidate(json))
+        }
+        Assert.assertEquals(payment.validation.messages.size, fields)
     }
 }
