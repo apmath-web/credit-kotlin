@@ -51,12 +51,10 @@ abstract class ViewModel : ViewModelInterface {
     protected fun loadNullableNotRequiredField(json: JSONObject, field: String): Any {
         return if (!json.has(field)) {
             when (field) {
-                "type" -> "REGULAR"
-                "currency" -> "USD"
-                "date" -> LocalDate.now().format(DateTimeFormatter.ISO_DATE)
-                else -> {
-                    WrongFieldException(field)
-                }
+                "type"      -> "REGULAR"
+                "currency"  -> "USD"
+                "date"      -> LocalDate.now().format(DateTimeFormatter.ISO_DATE)
+                else        -> WrongFieldException(field)
             }
         } else
             json.get(field)
