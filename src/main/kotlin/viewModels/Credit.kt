@@ -29,11 +29,7 @@ class Credit : ViewModel(), CreditInterface {
             .put(PERSON, person?.fetchJson())
             .put(AMOUNT, amount?.value)
             .put(AGREEMENT_AT, (agreementAt as LocalDate).format(DateTimeFormatter.ISO_DATE))
-            .put(CURRENCY, when (currency as Currency) {
-                Currency.USD   -> "USD"
-                Currency.EUR   -> "EUR"
-                Currency.RUR   -> "RUR"
-            })
+            .put(CURRENCY, currency)
             .put(DURATION, duration)
             .put(PERCENT, percent)
     }
@@ -50,14 +46,12 @@ class Credit : ViewModel(), CreditInterface {
     }
 
     override fun loadAndValidate(json: JSONObject): Boolean {
-        return arrayOf(
-            loadAndValidatePerson(json),
-            loadAndValidateAmount(json),
-            loadAndValidateAgreementAt(json),
-            loadAndValidateCurrency(json),
-            loadAndValidateDuration(json),
-            loadAndValidatePercent(json)
-        ).reduce { a, b -> a && b }
+        return loadAndValidatePerson(json)
+            .and(loadAndValidateAmount(json))
+            .and(loadAndValidateAgreementAt(json))
+            .and(loadAndValidateCurrency(json))
+            .and(loadAndValidateDuration(json))
+            .and(loadAndValidatePercent(json))
     }
 
     private fun loadAndValidatePerson(json: JSONObject): Boolean
@@ -136,14 +130,9 @@ class Credit : ViewModel(), CreditInterface {
             return false
         }
 
-        currency = when (raw) {
-            "EUR"   -> Currency.EUR
-            "USD"   -> Currency.USD
-            "RUR"   -> Currency.RUR
-            else    -> null
-        }
-
-        if (currency == null) {
+        try {
+            currency = Currency.valueOf(raw)
+        } catch (e: IllegalArgumentException) {
             addMessage(Message(CURRENCY, MESSAGE_CURRENCY_UNKNOWN))
             return false
         }
