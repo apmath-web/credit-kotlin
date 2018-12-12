@@ -5,8 +5,6 @@ import domain.data.Money
 import domain.data.State
 import domain.data.Type
 import domain.valueObjects.Message
-import domain.valueObjects.Validation
-import domain.valueObjects.ValidationInterface
 import domain.valueObjects.PaymentInterface as PaymentInterfaceValueObject
 import org.json.JSONObject
 import java.time.LocalDate
@@ -32,8 +30,8 @@ class Payment : ViewModel(), PaymentInterface {
         this.payment = payment.payment
         percent = payment.percent
         body = payment.body
-        remainCreditBody = payment.body
-        fullEarlyRepayment = payment.body
+        remainCreditBody = payment.remainCreditBody
+        fullEarlyRepayment = payment.fullEarlyRepayment
     }
 
     override fun loadAndValidate(json: JSONObject): Boolean {
@@ -44,7 +42,7 @@ class Payment : ViewModel(), PaymentInterface {
     }
 
     private fun loadAndValidateDate(json: JSONObject): Boolean {
-        val raw = loadNullableNotRequiredField(json, DATE)
+        val raw = loadField(json, DATE, false, false) ?: return true
 
         if (raw !is String) {
             addMessage(Message(DATE, MESSAGE_NOT_STRING))
@@ -67,7 +65,7 @@ class Payment : ViewModel(), PaymentInterface {
     }
 
     private fun loadAndValidateCurrency(json: JSONObject): Boolean {
-        val raw = loadNullableNotRequiredField(json, CURRENCY)
+        val raw = loadField(json, CURRENCY, false, false) ?: return true
 
         if (raw !is String) {
             addMessage(Message(CURRENCY, MESSAGE_NOT_STRING))
@@ -85,15 +83,25 @@ class Payment : ViewModel(), PaymentInterface {
     }
 
     private fun loadAndValidateType(json: JSONObject): Boolean {
-        val raw = loadNullableNotRequiredField(json, TYPE)
+        val raw = loadField(json, TYPE, default = "regular")
 
         if (raw !is String) {
             addMessage(Message(TYPE, MESSAGE_NOT_STRING))
             return false
         }
 
+        if (raw.toLowerCase() != raw) {
+            addMessage(Message(TYPE, MESSAGE_TYPE_UNKNOWN))
+            return false
+        }
+
         try {
-            type = Type.valueOf(raw)
+            val rawType = Type.valueOf(raw.toUpperCase())
+            // NEXT is not allowed as income value due to specification
+            if (rawType == Type.NEXT) {
+                throw IllegalArgumentException()
+            }
+            type = rawType
         } catch (e: IllegalArgumentException) {
             addMessage(Message(TYPE, MESSAGE_TYPE_UNKNOWN))
             return false
@@ -103,7 +111,7 @@ class Payment : ViewModel(), PaymentInterface {
     }
 
     private fun loadAndValidatePayment(json: JSONObject): Boolean {
-        val raw = loadNotNullRequiredField(json, PAYMENT) ?: return false
+        val raw = loadField(json, PAYMENT) ?: return false
 
         if ((raw !is Long) && (raw !is Int)) {
             addMessage(Message(PAYMENT, MESSAGE_NOT_INT))
@@ -127,15 +135,15 @@ class Payment : ViewModel(), PaymentInterface {
 
     override fun fetchJson(): JSONObject {
         return JSONObject()
-            .put(TYPE, type)
-            .put(STATE, type)
-            .put(DATE, date)
+            .put(TYPE, type.toString().toLowerCase())
+            .put(STATE, state.toString().toLowerCase())
+            .put(DATE, date?.format(DateTimeFormatter.ISO_DATE))
             .put(CURRENCY, currency)
-            .put(PAYMENT, payment)
-            .put(PERCENT, type)
-            .put(BODY, type)
-            .put(REMAIN_CREDIT_BODY, type)
-            .put(FULL_EARLY_REPAYMENT, type)
+            .put(PAYMENT, payment?.value)
+            .put(PERCENT, percent?.value)
+            .put(BODY, body?.value)
+            .put(REMAIN_CREDIT_BODY, remainCreditBody?.value)
+            .put(FULL_EARLY_REPAYMENT, fullEarlyRepayment?.value)
     }
 
     companion object {
@@ -149,5 +157,4 @@ class Payment : ViewModel(), PaymentInterface {
         const val REMAIN_CREDIT_BODY    = "remainCreditBody"
         const val FULL_EARLY_REPAYMENT  = "fullEarlyRepayment"
     }
-
 }
