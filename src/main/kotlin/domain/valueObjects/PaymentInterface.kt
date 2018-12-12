@@ -15,5 +15,4 @@ interface PaymentInterface {
     val percent: Money
     val body: Money
     val remainCreditBody: Money
-    val fullEarlyRepayment: Money?
 }
