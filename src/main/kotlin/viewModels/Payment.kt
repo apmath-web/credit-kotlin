@@ -75,7 +75,7 @@ class Payment : ViewModel(), PaymentInterface {
         }
 
         try {
-            currency = Currency.valueOf(raw.toUpperCase())
+            currency = Currency.valueOf(raw)
         } catch (e: IllegalArgumentException) {
             addMessage(Message(CURRENCY, MESSAGE_CURRENCY_UNKNOWN))
             return false
