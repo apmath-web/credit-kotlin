@@ -49,7 +49,7 @@ abstract class ViewModel : ViewModelInterface {
     }
 
     protected fun loadNullableNotRequiredField(json: JSONObject, field: String): Any {
-        return if (!json.has(field)) {
+        return if (!json.has(field) || json.get(field) == JSONObject.NULL) {
             when (field) {
                 "type"      -> "REGULAR"
                 "currency"  -> "USD"

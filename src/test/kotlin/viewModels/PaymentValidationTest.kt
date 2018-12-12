@@ -12,6 +12,7 @@ import java.util.stream.Stream
 class PaymentValidationTest {
 
     private fun jsonProvider() = Stream.of(
+        //correct fields
         Arguments.of(
             JSONObject(
                 mapOf(
@@ -24,6 +25,7 @@ class PaymentValidationTest {
             true,
             0
         ),
+        //fields with error
         Arguments.of(
             JSONObject(
                 mapOf(
@@ -48,11 +50,12 @@ class PaymentValidationTest {
             false,
             2
         ),
+        //null fields
         Arguments.of(
             JSONObject(
                 mapOf(
                     "payment" to 2955,
-                    "type" to null,
+                    "type" to JSONObject.NULL,
                     "currency" to "USD",
                     "date" to "error"
                 )
@@ -64,9 +67,9 @@ class PaymentValidationTest {
             JSONObject(
                 mapOf(
                     "payment" to 2955,
-                    "type" to null,
-                    "currency" to null,
-                    "date" to null
+                    "type" to JSONObject.NULL,
+                    "currency" to JSONObject.NULL,
+                    "date" to JSONObject.NULL
                 )
             ),
             true,
@@ -75,7 +78,7 @@ class PaymentValidationTest {
         Arguments.of(
             JSONObject(
                 mapOf(
-                    "payment" to null,
+                    "payment" to JSONObject.NULL,
                     "type" to "error",
                     "currency" to "error",
                     "date" to "2018-09-08"
