@@ -134,8 +134,7 @@ class Payment : ViewModel(), PaymentInterface {
     }
 
     override fun fetchJson(): JSONObject {
-        return JSONObject()
-            .put(TYPE, type.toString().toLowerCase())
+        val json = JSONObject().put(TYPE, type.toString().toLowerCase())
             .put(STATE, state.toString().toLowerCase())
             .put(DATE, date?.format(DateTimeFormatter.ISO_DATE))
             .put(CURRENCY, currency)
@@ -143,7 +142,11 @@ class Payment : ViewModel(), PaymentInterface {
             .put(PERCENT, percent?.value)
             .put(BODY, body?.value)
             .put(REMAIN_CREDIT_BODY, remainCreditBody?.value)
-            .put(FULL_EARLY_REPAYMENT, fullEarlyRepayment?.value)
+
+        if (state != State.PAID)
+            json.put(FULL_EARLY_REPAYMENT, fullEarlyRepayment?.value)
+
+        return json
     }
 
     companion object {
