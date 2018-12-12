@@ -16,7 +16,7 @@ class PaymentValidationTest {
             JSONObject(
                 mapOf(
                     "payment" to 2955,
-                    "type" to "REGULAR",
+                    "type" to "regular",
                     "currency" to "USD",
                     "date" to "2018-09-08"
                 )
@@ -40,7 +40,7 @@ class PaymentValidationTest {
             JSONObject(
                 mapOf(
                     "payment" to "error",
-                    "type" to "REGULAR",
+                    "type" to "regular",
                     "currency" to "USD",
                     "date" to "error"
                 )
@@ -86,6 +86,7 @@ class PaymentValidationTest {
         )
     )
 
+    // todo rewrite test according to CreditFromJsonTest
     @ParameterizedTest
     @MethodSource("jsonProvider")
     fun loadAndValidateTest(json: JSONObject, isValid: Boolean, fields: Int) {

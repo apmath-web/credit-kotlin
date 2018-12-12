@@ -214,8 +214,7 @@ class CreditFromJsonTest {
                     .put("firstName", "Konstantin")
                     .put("lastName", "Malinin"))
                 .put("amount", 1000000)
-                // TODO fix JSONObject.NULL checks in VM
-                //.put("agreementAt", JSONObject.NULL)
+                .put("agreementAt", JSONObject.NULL)
                 .put("currency", "RUR")
                 .put("duration", 12)
                 .put("percent", 8),
