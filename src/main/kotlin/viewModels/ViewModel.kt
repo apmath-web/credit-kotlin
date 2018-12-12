@@ -1,14 +1,12 @@
 package viewModels
 
-import domain.exceptions.WrongFieldException
 import org.json.*
 import domain.valueObjects.Message
 import domain.valueObjects.MessageInterface
 import domain.valueObjects.Validation
 import domain.valueObjects.ValidationInterface
 import exceptions.BadRequestException
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+
 
 abstract class ViewModel : ViewModelInterface {
 
@@ -34,30 +32,35 @@ abstract class ViewModel : ViewModelInterface {
         validation.addMessage(message)
     }
 
-    protected fun loadNotNullRequiredField(json: JSONObject, field: String): Any? {
+    /**
+     * Function loads field value
+     * Main concept is that required and not null field could not have default value, cause we should return validation message on that
+     * All cases affects NULL case or case when field not present in JSON at all
+     *
+     * So, there is three use cases:
+     *  - retrieve null and add validation message, do it by passing first two arguments
+     *  - retrieve default value, when field not present or equals null, do it by passing default value (you could skip required and notNull flags)
+     *  - retrieve null, and do not cause validation message, do it by passing false for both: required and notNull
+     */
+    protected fun loadField(json: JSONObject, field: String, required: Boolean = true, notNull: Boolean = true, default: Any? = null): Any? {
+        val isRequired  = if (default == null) { required } else { false }
+        val isNotNull   = if (default == null) { notNull } else { false }
+
         if (!json.has(field)) {
-            addMessage(Message(field, MESSAGE_REQUIRED))
-            return null
+            if (isRequired) {
+                addMessage(Message(field, MESSAGE_REQUIRED))
+            }
+            return default
         }
 
         val raw = json.get(field)
-        if (raw == null) {
-            addMessage(Message(field, MESSAGE_NOT_NULL))
-            return null
+        if (raw == JSONObject.NULL) {
+            if (isNotNull) {
+                addMessage(Message(field, MESSAGE_NOT_NULL))
+            }
+            return default
         }
         return raw
-    }
-
-    protected fun loadNullableNotRequiredField(json: JSONObject, field: String): Any {
-        return if (!json.has(field)) {
-            when (field) {
-                "type"      -> "REGULAR"
-                "currency"  -> "USD"
-                "date"      -> LocalDate.now().format(DateTimeFormatter.ISO_DATE)
-                else        -> WrongFieldException(field)
-            }
-        } else
-            json.get(field)
     }
 
     companion object {
