@@ -7,8 +7,6 @@ import domain.valueObjects.Message
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
-import domain.valueObjects.PersonInterface as PersonValueObjectInterface
-import domain.valueObjects.Person as PersonValueObject
 import domain.models.CreditInterface as CreditModelInterface
 
 

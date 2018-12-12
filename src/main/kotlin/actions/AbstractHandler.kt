@@ -8,7 +8,7 @@ import org.json.JSONObject
 
 abstract class AbstractHandler {
 
-    abstract fun handle(request: HttpRequest): FullHttpResponse
+    abstract fun handle(request: FullHttpRequest): FullHttpResponse
 
     protected fun getResponse(status: HttpResponseStatus, json: JSONObject): FullHttpResponse {
 

@@ -3,6 +3,7 @@ package server
 import io.netty.handler.codec.http.HttpServerCodec
 import io.netty.channel.ChannelInitializer
 import io.netty.channel.socket.SocketChannel
+import io.netty.handler.codec.http.HttpObjectAggregator
 
 
 class ServerInitializer : ChannelInitializer<SocketChannel>() {
@@ -16,6 +17,7 @@ class ServerInitializer : ChannelInitializer<SocketChannel>() {
         //p.addLast("ssl", new SslHandler(engine));
 
         p.addLast("codec", HttpServerCodec())
+        p.addLast("aggregate", HttpObjectAggregator(1048576))
         p.addLast("handler", ServerHandler())
     }
 }
