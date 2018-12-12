@@ -8,7 +8,6 @@ import java.time.LocalDate
 import domain.valueObjects.PaymentInterface as PaymentValueObjectInterface
 
 interface PaymentInterface : ViewModelInterface {
-    fun hydrate(payment: PaymentValueObjectInterface)
     val type: Type?
     val state: State?
     val date: LocalDate?
@@ -18,4 +17,6 @@ interface PaymentInterface : ViewModelInterface {
     val body: Money?
     val remainCreditBody: Money?
     val fullEarlyRepayment: Money?
+
+    fun hydrate(payment: PaymentValueObjectInterface)
 }
