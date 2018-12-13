@@ -2,13 +2,17 @@ package actions.credit
 
 import domain.data.Type
 import domain.data.State
+import domain.exceptions.CreditNotFoundException
+import domain.models.CreditInterface
 import io.netty.handler.codec.http.*
 import domain.repositories.CreditsRepositoryInterface
 import domain.valueObjects.Message
 import exceptions.BadRequestValidationException
-import org.json.JSONObject
+import exceptions.NotFoundException
+import org.json.JSONArray
 import viewModels.Credit as CreditViewModel
 import viewModels.Person as PersonViewModel
+import viewModels.Payment as PaymentViewModel
 import java.util.HashMap
 
 
@@ -22,7 +26,23 @@ class Payments(private val repository: CreditsRepositoryInterface) : AbstractCre
             throw BadRequestValidationException(validation)
         }
 
-        val json = JSONObject().put("id", creditId)
+
+        val credit: CreditInterface
+
+        try {
+            credit = repository.get(creditId as Int)
+        } catch (e: CreditNotFoundException) {
+            throw NotFoundException("Credit not found")
+        }
+
+        val payments = credit.getPayments(paymentsType, paymentsState)
+        val json = JSONArray()
+
+        payments.forEach {
+            val paymentViewModel = PaymentViewModel()
+            paymentViewModel.hydrate(it)
+            json.put(paymentViewModel.fetchJson())
+        }
 
         return getResponse(HttpResponseStatus.OK, json)
     }
