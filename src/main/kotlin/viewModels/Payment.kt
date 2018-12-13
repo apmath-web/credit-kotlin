@@ -20,6 +20,7 @@ class Payment : ViewModel(), PaymentInterface {
     override var percent: Money? = null
     override var body: Money? = null
     override var remainCreditBody: Money? = null
+    override var fullEarlyRepayment: Money? = null
 
     override fun hydrate(payment: PaymentInterfaceValueObject) {
         type = payment.type
@@ -30,6 +31,7 @@ class Payment : ViewModel(), PaymentInterface {
         percent = payment.percent
         body = payment.body
         remainCreditBody = payment.remainCreditBody
+        fullEarlyRepayment = payment.fullEarlyRepayment
     }
 
     override fun loadAndValidate(json: JSONObject): Boolean {
@@ -132,7 +134,7 @@ class Payment : ViewModel(), PaymentInterface {
     }
 
     override fun fetchJson(): JSONObject {
-        return JSONObject().put(TYPE, type.toString().toLowerCase())
+        val json = JSONObject().put(TYPE, type.toString().toLowerCase())
             .put(STATE, state.toString().toLowerCase())
             .put(DATE, date?.format(DateTimeFormatter.ISO_DATE))
             .put(CURRENCY, currency)
@@ -140,6 +142,11 @@ class Payment : ViewModel(), PaymentInterface {
             .put(PERCENT, percent?.value)
             .put(BODY, body?.value)
             .put(REMAIN_CREDIT_BODY, remainCreditBody?.value)
+
+        if (state != State.PAID)
+            json.put(FULL_EARLY_REPAYMENT, fullEarlyRepayment?.value)
+
+        return json
     }
 
     companion object {
@@ -151,5 +158,6 @@ class Payment : ViewModel(), PaymentInterface {
         const val PERCENT               = "percent"
         const val BODY                  = "body"
         const val REMAIN_CREDIT_BODY    = "remainCreditBody"
+        const val FULL_EARLY_REPAYMENT  = "fullEarlyRepayment"
     }
 }
