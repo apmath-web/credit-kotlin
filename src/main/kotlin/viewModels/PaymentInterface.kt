@@ -7,12 +7,16 @@ import domain.data.State
 import java.time.LocalDate
 import domain.valueObjects.PaymentInterface as PaymentValueObjectInterface
 
-
 interface PaymentInterface : ViewModelInterface {
-    fun hydrate(person: PaymentValueObjectInterface)
-    fun getPayment(): Money
-    fun getType(): Type
-    fun getCurrency(): Currency
-    fun getDate(): LocalDate
-    fun getState(): State
+    val type: Type?
+    val state: State?
+    val date: LocalDate?
+    val currency: Currency?
+    val payment: Money?
+    val percent: Money?
+    val body: Money?
+    val remainCreditBody: Money?
+    val fullEarlyRepayment: Money?
+
+    fun hydrate(payment: PaymentValueObjectInterface)
 }

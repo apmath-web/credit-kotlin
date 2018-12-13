@@ -29,11 +29,7 @@ class Credit : ViewModel(), CreditInterface {
             .put(PERSON, person?.fetchJson())
             .put(AMOUNT, amount?.value)
             .put(AGREEMENT_AT, (agreementAt as LocalDate).format(DateTimeFormatter.ISO_DATE))
-            .put(CURRENCY, when (currency as Currency) {
-                Currency.USD   -> "USD"
-                Currency.EUR   -> "EUR"
-                Currency.RUR   -> "RUR"
-            })
+            .put(CURRENCY, currency)
             .put(DURATION, duration)
             .put(PERCENT, percent)
     }
@@ -50,19 +46,17 @@ class Credit : ViewModel(), CreditInterface {
     }
 
     override fun loadAndValidate(json: JSONObject): Boolean {
-        return arrayOf(
-            loadAndValidatePerson(json),
-            loadAndValidateAmount(json),
-            loadAndValidateAgreementAt(json),
-            loadAndValidateCurrency(json),
-            loadAndValidateDuration(json),
-            loadAndValidatePercent(json)
-        ).reduce { a, b -> a && b }
+        return loadAndValidatePerson(json)
+            .and(loadAndValidateAmount(json))
+            .and(loadAndValidateAgreementAt(json))
+            .and(loadAndValidateCurrency(json))
+            .and(loadAndValidateDuration(json))
+            .and(loadAndValidatePercent(json))
     }
 
     private fun loadAndValidatePerson(json: JSONObject): Boolean
     {
-        val raw = loadNotNullRequiredField(json, PERSON) ?: return false
+        val raw = loadField(json, PERSON) ?: return false
 
         if (raw !is JSONObject) {
             addMessage(Message(PERSON, MESSAGE_NOT_OBJECT))
@@ -83,7 +77,7 @@ class Credit : ViewModel(), CreditInterface {
 
     private fun loadAndValidateAmount(json: JSONObject): Boolean
     {
-        val raw = loadNotNullRequiredField(json, AMOUNT) ?: return false
+        val raw = loadField(json, AMOUNT) ?: return false
 
         if ((raw !is Long) && (raw !is Int)) {
             addMessage(Message(AMOUNT, MESSAGE_NOT_LONG))
@@ -103,18 +97,14 @@ class Credit : ViewModel(), CreditInterface {
 
     private fun loadAndValidateAgreementAt(json: JSONObject): Boolean
     {
-        if (!json.has(AGREEMENT_AT)) {
-            return true
-        }
-
-        val raw = json.get(AGREEMENT_AT) ?: return true
+        val raw = loadField(json, AGREEMENT_AT, default = LocalDate.now().format(DateTimeFormatter.ISO_DATE))
 
         if (raw !is String) {
             addMessage(Message(AGREEMENT_AT, MESSAGE_NOT_STRING))
             return false
         }
 
-        if (!Regex("^[0-9]{4}-[0-9]{2}-[0-9]{2}$").matches(raw)) {
+        if (!Regex(DATE_FORMATE).matches(raw)) {
             addMessage(Message(AGREEMENT_AT, MESSAGE_NOT_DATE))
             return false
         }
@@ -129,21 +119,16 @@ class Credit : ViewModel(), CreditInterface {
 
     private fun loadAndValidateCurrency(json: JSONObject): Boolean
     {
-        val raw = loadNotNullRequiredField(json, CURRENCY) ?: return false
+        val raw = loadField(json, CURRENCY) ?: return false
 
         if (raw !is String) {
             addMessage(Message(CURRENCY, MESSAGE_NOT_STRING))
             return false
         }
 
-        currency = when (raw) {
-            "EUR"   -> Currency.EUR
-            "USD"   -> Currency.USD
-            "RUR"   -> Currency.RUR
-            else    -> null
-        }
-
-        if (currency == null) {
+        try {
+            currency = Currency.valueOf(raw)
+        } catch (e: IllegalArgumentException) {
             addMessage(Message(CURRENCY, MESSAGE_CURRENCY_UNKNOWN))
             return false
         }
@@ -153,7 +138,7 @@ class Credit : ViewModel(), CreditInterface {
 
     private fun loadAndValidateDuration(json: JSONObject): Boolean
     {
-        val raw = loadNotNullRequiredField(json, DURATION) ?: return false
+        val raw = loadField(json, DURATION) ?: return false
 
         if (raw !is Int) {
             addMessage(Message(DURATION, MESSAGE_NOT_INT))
@@ -172,7 +157,7 @@ class Credit : ViewModel(), CreditInterface {
 
     private fun loadAndValidatePercent(json: JSONObject): Boolean
     {
-        val raw = loadNotNullRequiredField(json, PERCENT) ?: return false
+        val raw = loadField(json, PERCENT) ?: return false
 
         if (raw !is Int) {
             addMessage(Message(PERCENT, MESSAGE_NOT_LONG))
