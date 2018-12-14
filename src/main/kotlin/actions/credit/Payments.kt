@@ -10,6 +10,7 @@ import domain.valueObjects.Message
 import exceptions.BadRequestValidationException
 import exceptions.NotFoundException
 import org.json.JSONArray
+import org.json.JSONObject
 import viewModels.Credit as CreditViewModel
 import viewModels.Person as PersonViewModel
 import viewModels.Payment as PaymentViewModel
@@ -26,7 +27,6 @@ class Payments(private val repository: CreditsRepositoryInterface) : AbstractCre
             throw BadRequestValidationException(validation)
         }
 
-
         val credit: CreditInterface
 
         try {
@@ -36,12 +36,13 @@ class Payments(private val repository: CreditsRepositoryInterface) : AbstractCre
         }
 
         val payments = credit.getPayments(paymentsType, paymentsState)
-        val json = JSONArray()
+        val paymentsJson = JSONArray()
+        val json = JSONObject().put("payments", paymentsJson)
 
         payments.forEach {
             val paymentViewModel = PaymentViewModel()
             paymentViewModel.hydrate(it)
-            json.put(paymentViewModel.fetchJson())
+            paymentsJson.put(paymentViewModel.fetchJson())
         }
 
         return getResponse(HttpResponseStatus.OK, json)
