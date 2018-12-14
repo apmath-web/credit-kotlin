@@ -3,6 +3,7 @@ package actions
 import io.netty.buffer.Unpooled
 import io.netty.handler.codec.http.*
 import io.netty.util.CharsetUtil
+import org.json.JSONArray
 import org.json.JSONObject
 
 
@@ -11,6 +12,11 @@ abstract class AbstractHandler {
     abstract fun handle(request: FullHttpRequest): FullHttpResponse
 
     protected fun getResponse(status: HttpResponseStatus, json: JSONObject): FullHttpResponse {
+
+        return getResponse(status, json.toString())
+    }
+
+    protected fun getResponse(status: HttpResponseStatus, json: JSONArray): FullHttpResponse {
 
         return getResponse(status, json.toString())
     }

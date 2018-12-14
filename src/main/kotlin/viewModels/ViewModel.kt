@@ -75,6 +75,6 @@ abstract class ViewModel : ViewModelInterface {
         const val MESSAGE_NOT_DATE              = "Must be a YYYY-MM-DD date"
         const val MESSAGE_DATE_INVALID          = "Must be a valid date"
         const val MESSAGE_CURRENCY_UNKNOWN      = "Must be a valid currency ['RUR', 'USD', 'EUR'] allowed"
-        const val MESSAGE_TYPE_UNKNOWN          = "Must be a valid type ['REGULAR', 'EARLY', 'NEXT'] allowed"
+        const val MESSAGE_TYPE_UNKNOWN          = "Must be a valid type ['regular', 'early'] allowed"
     }
 }

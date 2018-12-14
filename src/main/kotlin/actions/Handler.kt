@@ -1,6 +1,7 @@
 package actions
 
 import actions.credit.Create
+import actions.credit.Payments
 import io.netty.handler.codec.http.*
 import domain.repositories.CreditsRepository
 import domain.repositories.CreditsRepositoryInterface
@@ -30,8 +31,12 @@ class Handler : AbstractHandler() {
     private fun routeRequest(request: FullHttpRequest): FullHttpResponse {
 
         when {
-            request.uri() == "/credit" && request.method() == HttpMethod.POST
+
+            request.method() == HttpMethod.POST && request.uri() == "/credit"
                 -> return Create(repository).handle(request)
+
+            request.method() == HttpMethod.GET && Regex(Payments.ROUTE).matches(request.uri())
+                -> return Payments(repository).handle(request)
 
         }
 

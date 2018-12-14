@@ -1,6 +1,8 @@
 package domain.models
 
 import domain.data.Money
+import domain.data.State
+import domain.data.Type
 import domain.exceptions.ChangeIdentifiedCreditIdException
 import domain.exceptions.CreditAmountTooSmallException
 import domain.exceptions.PaymentLessThanMinimalException
@@ -38,7 +40,7 @@ class Credit(
         regularPayment = getRegularPayment(annuityPayment)
     }
 
-    override fun getPayments(type: String?, state: String?): MutableList<PaymentInterface> {
+    override fun getPayments(type: Type?, state: State?): MutableList<PaymentInterface> {
         return payments
     }
 
