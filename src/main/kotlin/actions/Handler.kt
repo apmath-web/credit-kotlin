@@ -1,7 +1,7 @@
 package actions
 
 import actions.credit.Create
-import actions.credit.Delete
+import actions.credit.Payments
 import io.netty.handler.codec.http.*
 import domain.repositories.CreditsRepository
 import domain.repositories.CreditsRepositoryInterface
@@ -31,11 +31,12 @@ class Handler : AbstractHandler() {
     private fun routeRequest(request: FullHttpRequest): FullHttpResponse {
 
         when {
-            request.uri() == "/credit" && request.method() == HttpMethod.POST
-            -> return Create(repository).handle(request)
 
-            request.uri().matches(kotlin.text.Regex("credit/[0-9]*")) && request.method() == HttpMethod.DELETE
-            -> return Delete(repository).handle(request)
+            request.method() == HttpMethod.POST && request.uri() == "/credit"
+                -> return Create(repository).handle(request)
+
+            request.method() == HttpMethod.GET && Regex(Payments.ROUTE).matches(request.uri())
+                -> return Payments(repository).handle(request)
 
         }
 
@@ -59,14 +60,14 @@ class Handler : AbstractHandler() {
 
     private fun getUnexpectedExceptionResponse(e: Throwable): FullHttpResponse {
 
-        val json = JSONObject().put(MESSAGE, "Unexpected exception '${e.javaClass}' happend")
+        val json = JSONObject().put(MESSAGE, "Unexpected exception '${e.javaClass.toString()}' happend")
 
         return getResponse(HttpResponseStatus.INTERNAL_SERVER_ERROR, json)
     }
 
     private fun getExpectedExceptionResponse(e: Throwable): FullHttpResponse {
 
-        val json = JSONObject().put(MESSAGE, "Expected exception '${e.javaClass}' not catched")
+        val json = JSONObject().put(MESSAGE, "Expected exception '${e.javaClass.toString()}' not catched")
 
         return getResponse(HttpResponseStatus.INTERNAL_SERVER_ERROR, json)
     }
@@ -75,7 +76,7 @@ class Handler : AbstractHandler() {
 
         private val repository: CreditsRepositoryInterface = CreditsRepository()
 
-        const val MESSAGE = "message"
-        const val DESCRIPTION = "description"
+        const val MESSAGE       = "message"
+        const val DESCRIPTION   = "description"
     }
 }

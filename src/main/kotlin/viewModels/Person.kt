@@ -31,7 +31,7 @@ class Person : ViewModel(), PersonInterface {
 
     private fun loadAndValidateFirstName(json: JSONObject): Boolean
     {
-        val raw = loadNotNullRequiredField(json, FIRST_NAME) ?: return false
+        val raw = loadField(json, FIRST_NAME) ?: return false
 
         if (raw !is String) {
             addMessage(Message(FIRST_NAME, MESSAGE_NOT_STRING))
@@ -50,7 +50,7 @@ class Person : ViewModel(), PersonInterface {
 
     private fun loadAndValidateLastName(json: JSONObject): Boolean
     {
-        val raw = loadNotNullRequiredField(json, LAST_NAME) ?: return false
+        val raw = loadField(json, LAST_NAME) ?: return false
 
         if (raw !is String) {
             addMessage(Message(LAST_NAME, MESSAGE_NOT_STRING))

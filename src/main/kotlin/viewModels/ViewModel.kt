@@ -24,31 +24,47 @@ abstract class ViewModel : ViewModelInterface {
 
     abstract fun loadAndValidate(json: JSONObject): Boolean
 
-    override fun fetch(): String
-    {
+    override fun fetch(): String {
         return fetchJson().toString()
     }
 
-    protected fun addMessage(message : MessageInterface) {
+    protected fun addMessage(message: MessageInterface) {
         validation.addMessage(message)
     }
 
-    protected fun loadNotNullRequiredField(json: JSONObject, field: String): Any?
-    {
+    /**
+     * Function loads field value
+     * Main concept is that required and not null field could not have default value, cause we should return validation message on that
+     * All cases affects NULL case or case when field not present in JSON at all
+     *
+     * So, there is three use cases:
+     *  - retrieve null and add validation message, do it by passing first two arguments
+     *  - retrieve default value, when field not present or equals null, do it by passing default value (you could skip required and notNull flags)
+     *  - retrieve null, and do not cause validation message, do it by passing false for both: required and notNull
+     */
+    protected fun loadField(json: JSONObject, field: String, required: Boolean = true, notNull: Boolean = true, default: Any? = null): Any? {
+        val isRequired  = if (default == null) { required } else { false }
+        val isNotNull   = if (default == null) { notNull } else { false }
+
         if (!json.has(field)) {
-            addMessage(Message(field, MESSAGE_REQUIRED))
-            return null
+            if (isRequired) {
+                addMessage(Message(field, MESSAGE_REQUIRED))
+            }
+            return default
         }
 
         val raw = json.get(field)
-        if (raw == null) {
-            addMessage(Message(field, MESSAGE_NOT_NULL))
-            return null
+        if (raw == JSONObject.NULL) {
+            if (isNotNull) {
+                addMessage(Message(field, MESSAGE_NOT_NULL))
+            }
+            return default
         }
         return raw
     }
 
     companion object {
+        const val DATE_FORMATE                  = "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
         const val MESSAGE_INVALID_JSON          = "Invalid JSON format"
         const val MESSAGE_REQUIRED              = "Is required"
         const val MESSAGE_NOT_NULL              = "Must be not null"
@@ -59,5 +75,6 @@ abstract class ViewModel : ViewModelInterface {
         const val MESSAGE_NOT_DATE              = "Must be a YYYY-MM-DD date"
         const val MESSAGE_DATE_INVALID          = "Must be a valid date"
         const val MESSAGE_CURRENCY_UNKNOWN      = "Must be a valid currency ['RUR', 'USD', 'EUR'] allowed"
+        const val MESSAGE_TYPE_UNKNOWN          = "Must be a valid type ['regular', 'early'] allowed"
     }
 }

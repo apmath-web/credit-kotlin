@@ -1,7 +1,8 @@
 package domain.models
 
 import domain.data.Money
-import domain.data.Currency
+import domain.data.State
+import domain.data.Type
 import domain.exceptions.ChangeIdentifiedCreditIdException
 import domain.exceptions.CreditAmountTooSmallException
 import domain.exceptions.PaymentLessThanMinimalException
@@ -12,12 +13,12 @@ import kotlin.math.pow
 
 
 class Credit(
-    person: PersonInterface,
-    amount: domain.data.Money,
-    agreementAt: LocalDate,
-    currency: domain.data.Currency,
-    duration: Int,
-    percent: Int
+    override val person: PersonInterface,
+    override val amount: domain.data.Money,
+    override val agreementAt: LocalDate,
+    override val currency: domain.data.Currency,
+    override val duration: Int,
+    override val percent: Int
 ) : CreditInterface {
     override var id: Int? = null
         set(value) {
@@ -27,12 +28,6 @@ class Credit(
                 throw ChangeIdentifiedCreditIdException()
             }
         }
-    override val person: PersonInterface = person
-    override val amount: Money = amount
-    override val agreementAt: LocalDate = agreementAt
-    override val currency: Currency = currency
-    override val duration: Int = duration
-    override val percent: Int = percent
 
     private val rounding: Int
     private var regularPayment: Money
@@ -45,13 +40,13 @@ class Credit(
         regularPayment = getRegularPayment(annuityPayment)
     }
 
-    override fun getPayments(type: String?, state: String?): List<PaymentInterface> {
-        // TODO
-        return arrayListOf()
+    override fun getPayments(type: Type?, state: State?): MutableList<PaymentInterface> {
+        return payments
     }
 
     override fun writeOf(payment: PaymentInterface) {
-        // TODO
+        //TODO check valid payment
+        payments.add(payment)
     }
 
     private fun getAnnuityPayment(): Double {
