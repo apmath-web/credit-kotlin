@@ -30,8 +30,6 @@ class AddPayment(private val repository: CreditsRepositoryInterface) : AbstractC
             repository.get(creditId!!).writeOf(payment)
         } catch (e: CreditNotFoundException) {
             throw NotFoundException("Credit not found")
-        } catch (e: Throwable) {
-            throw NotFoundException("exception " + e.printStackTrace())
         }
 
         return getResponse()
@@ -60,7 +58,7 @@ class AddPayment(private val repository: CreditsRepositoryInterface) : AbstractC
     }
 
     companion object {
-        const val ROUTE = "^/credit/(?<id>[0-9]+)$"
-        const val PAYMENT_EXECUTED_AT = "paymentExecutedAt"
+        const val ROUTE                 = "^/credit/(?<id>[0-9]+)$"
+        const val PAYMENT_EXECUTED_AT   = "paymentExecutedAt"
     }
 }
