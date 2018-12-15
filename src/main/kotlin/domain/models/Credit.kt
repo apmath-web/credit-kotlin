@@ -13,9 +13,9 @@ import domain.valueObjects.payment.PaidPaymentInterface
 import domain.valueObjects.payment.PayPaymentInterface
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
+import java.util.stream.Stream
 import kotlin.math.pow
 import kotlin.math.roundToLong
-
 
 class Credit(
     override val person: PersonInterface,
@@ -52,13 +52,18 @@ class Credit(
         val annuityPayment = getAnnuityPayment()
         rounding = getRounding(annuityPayment)
         regularPayment = getRegularPayment(annuityPayment)
-        println(annuityPayment)
-        println(rounding)
-        println(regularPayment)
     }
 
     override fun getPayments(type: Type?, state: State?): MutableList<PaidPaymentInterface> {
-        return payments
+        val results = arrayListOf<PaidPaymentInterface>()
+        payments.forEach {
+            if (it.state == state && it.type == type || type == null)
+                results.add(it)
+            else if (it.type == type && it.state == state || state == null)
+                results.add(it)
+        }
+
+        return results
     }
 
     //TODO Update with different currency
@@ -70,8 +75,9 @@ class Credit(
         val percent: Long = (remainAmount.value * getPercentPayment(payment.date)).roundToLong()
         val body: Long = payment.payment.value - percent
 
-        if (percent == 0L)
-            throw Exception("Same day")//TODO remove exception
+        //TODO uncomment if necessary
+        //if (percent == 0L)
+        //    throw Exception("Same day") //create new exception
         if (payment.payment == remainAmount) {
             percent.minus(remainAmount.value % 10)
         }
@@ -84,6 +90,8 @@ class Credit(
 
         remainAmount -= Money(body)
 
+        //TODO if (state==EARLY) recalculate
+
         payments.add(
             PaidPayment(
                 payment,
@@ -95,7 +103,11 @@ class Credit(
             )
         )
 
-        //TODO recalculate credit
+    }
+
+    private fun recalculate() {
+        val annuityPayment = getAnnuityPayment()
+        regularPayment = getRegularPayment(annuityPayment)
     }
 
     private fun getPercentPayment(now: LocalDate): Double {
