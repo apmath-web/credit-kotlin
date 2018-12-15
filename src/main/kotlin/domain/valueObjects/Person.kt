@@ -1,8 +1,3 @@
 package domain.valueObjects
 
-class Person(firstName: String, lastName: String) : PersonInterface {
-
-    override val firstName: String = firstName
-
-    override val lastName: String = lastName
-}
+data class Person(override val firstName: String, override val lastName: String) : PersonInterface

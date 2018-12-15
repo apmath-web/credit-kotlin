@@ -1,6 +1,5 @@
 package domain.valueObjects
 
-
 class Validation : ValidationInterface {
 
     override val messages: MutableList<MessageInterface> = arrayListOf()
