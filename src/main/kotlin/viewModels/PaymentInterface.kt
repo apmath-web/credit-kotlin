@@ -1,9 +1,10 @@
 package viewModels
 
-import domain.data.Type
-import domain.data.Money
 import domain.data.Currency
+import domain.data.Money
 import domain.data.State
+import domain.data.Type
+import domain.valueObjects.payment.PaidPaymentInterface
 import java.time.LocalDate
 import domain.valueObjects.PaymentInterface as PaymentValueObjectInterface
 
@@ -18,5 +19,5 @@ interface PaymentInterface : ViewModelInterface {
     val remainCreditBody: Money?
     val fullEarlyRepayment: Money?
 
-    fun hydrate(payment: PaymentValueObjectInterface)
+    fun hydrate(payment: PaidPaymentInterface)
 }

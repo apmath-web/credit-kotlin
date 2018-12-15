@@ -6,8 +6,9 @@ import domain.data.Type
 import domain.exceptions.ChangeIdentifiedCreditIdException
 import domain.exceptions.CreditAmountTooSmallException
 import domain.exceptions.PaymentLessThanMinimalException
-import domain.valueObjects.PaymentInterface
 import domain.valueObjects.PersonInterface
+import domain.valueObjects.payment.PaidPaymentInterface
+import domain.valueObjects.payment.PayPaymentInterface
 import java.time.LocalDate
 import kotlin.math.pow
 
@@ -31,7 +32,7 @@ class Credit(
 
     private val rounding: Int
     private var regularPayment: Money
-    private val payments: MutableList<PaymentInterface> = arrayListOf()
+    private val payments: MutableList<PaidPaymentInterface> = arrayListOf()
     private var remainAmount: Money = amount
 
     init {
@@ -40,13 +41,14 @@ class Credit(
         regularPayment = getRegularPayment(annuityPayment)
     }
 
-    override fun getPayments(type: Type?, state: State?): MutableList<PaymentInterface> {
+    override fun getPayments(type: Type?, state: State?): MutableList<PaidPaymentInterface> {
         return payments
     }
 
-    override fun writeOf(payment: PaymentInterface) {
+    override fun writeOf(payment: PayPaymentInterface) {
         //TODO check valid payment
-        payments.add(payment)
+        //payments.add(payment)
+        TODO()
     }
 
     private fun getAnnuityPayment(): Double {
