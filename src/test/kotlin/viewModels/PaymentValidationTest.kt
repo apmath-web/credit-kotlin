@@ -96,10 +96,6 @@ class PaymentValidationTest {
         val payment = Payment()
 
         if (isValid) {
-            payment.loadAndValidate(json)
-            for (message in payment.validation.messages) {
-                println("${message.text}  ${message.field}")
-            }
             Assert.assertTrue(payment.loadAndValidate(json))
         } else {
             Assert.assertFalse(payment.loadAndValidate(json))
