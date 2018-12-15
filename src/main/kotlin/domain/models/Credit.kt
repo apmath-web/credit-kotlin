@@ -6,6 +6,7 @@ import domain.data.Type
 import domain.exceptions.ChangeIdentifiedCreditIdException
 import domain.exceptions.CreditAmountTooSmallException
 import domain.exceptions.PaymentLessThanMinimalException
+import domain.exceptions.PaymentMoreThanCreditAmontException
 import domain.valueObjects.PersonInterface
 import domain.valueObjects.payment.PaidPayment
 import domain.valueObjects.payment.PaidPaymentInterface
@@ -73,12 +74,14 @@ class Credit(
             throw Exception("Same day")//TODO remove exception
         if (payment.payment == remainAmount) {
             percent.minus(remainAmount.value % 10)
-        } else
-            if (payment.payment.value < 100)
-                throw Exception("Min pay >= 100")//TODO create new exception
+        }
+
+        if (payment.payment.value < 100)
+            throw PaymentLessThanMinimalException()
 
         if (Money(body) > remainAmount)
-            throw Exception("Currency")//TODO create new exception
+            throw PaymentMoreThanCreditAmontException()
+
         remainAmount -= Money(body)
 
         payments.add(
@@ -110,6 +113,7 @@ class Credit(
         return ChronoUnit.DAYS.between(prev, now)
     }
 
+    //not exactly
     private fun getEarlyRepayment(now: LocalDate): Long {
         return ((1 + getPercentPayment(now)) * remainAmount.value).toLong()
     }

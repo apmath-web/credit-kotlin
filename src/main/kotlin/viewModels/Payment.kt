@@ -43,7 +43,7 @@ class Payment : ViewModel(), PaymentInterface {
     }
 
     private fun loadAndValidateDate(json: JSONObject): Boolean {
-        val raw = loadField(json, DATE, default = LocalDate.now()) ?: return true
+        val raw = loadField(json, DATE, default = LocalDate.now().format(DateTimeFormatter.ISO_DATE)) ?: return true
 
         if (raw !is String) {
             addMessage(Message(DATE, MESSAGE_NOT_STRING))
