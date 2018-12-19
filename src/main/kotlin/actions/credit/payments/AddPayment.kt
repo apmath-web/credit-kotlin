@@ -17,14 +17,20 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 class AddPayment(private val repository: CreditsRepositoryInterface) : AbstractCreditHandler() {
+
+    private val payment: Payment = Payment()
+
     @Throws
     override fun handle(request: FullHttpRequest): FullHttpResponse {
-        val groups = Regex(ROUTE).matchEntire(request.uri())!!.groups
-        if (!validateCreditId(groups)) {
-            throw BadRequestValidationException(validation)
-        }
+        if (!validateRequest(request))
+            throw BadRequestValidationException(validation + payment.validation)
 
-        val payment = getPayment(request)
+        val payment = PayPayment(
+            payment.payment!!,
+            payment.type!!,
+            payment.currency!!,
+            payment.date!!
+        )
 
         try {
             repository.get(creditId!!).writeOf(payment)
@@ -32,29 +38,18 @@ class AddPayment(private val repository: CreditsRepositoryInterface) : AbstractC
             throw NotFoundException("Credit not found")
         }
 
-        return getResponse()
-    }
-
-    private fun getResponse(): FullHttpResponse {
-        val responseJSON = JSONObject()
-            .put(PAYMENT_EXECUTED_AT, LocalDate.now().format(DateTimeFormatter.ISO_DATE))
-        return getResponse(HttpResponseStatus.OK, responseJSON)
-    }
-
-
-    private fun getPayment(request: FullHttpRequest): PayPaymentInterface {
-        val payment = Payment()
-        val body = request.content().toString(CharsetUtil.UTF_8)
-        if (!payment.loadAndValidate(body)) {
-            throw BadRequestValidationException(payment.validation)
-        }
-
-        return PayPayment(
-            payment.payment!!,
-            payment.type!!,
-            payment.currency!!,
-            payment.date!!
+        return getResponse(
+            HttpResponseStatus.OK, JSONObject()
+                .put(PAYMENT_EXECUTED_AT, LocalDate.now().format(DateTimeFormatter.ISO_DATE))
         )
+    }
+
+    private fun validateRequest(request: FullHttpRequest): Boolean {
+        val groups = Regex(ROUTE).matchEntire(request.uri())!!.groups
+        val body = request.content().toString(CharsetUtil.UTF_8)
+
+        return validateCreditId(groups)
+            .and(payment.loadAndValidate(body))
     }
 
     companion object {
