@@ -1,10 +1,10 @@
 package actions.credit.payments
 
 import actions.credit.AbstractCreditHandler
-import domain.exceptions.CreditNotFoundException
+import domain.exceptions.*
 import domain.repositories.CreditsRepositoryInterface
 import domain.valueObjects.payment.PayPayment
-import domain.valueObjects.payment.PayPaymentInterface
+import exceptions.BadRequestException
 import exceptions.BadRequestValidationException
 import exceptions.NotFoundException
 import io.netty.handler.codec.http.FullHttpRequest
@@ -36,6 +36,20 @@ class AddPayment(private val repository: CreditsRepositoryInterface) : AbstractC
             repository.get(creditId!!).writeOf(payment)
         } catch (e: CreditNotFoundException) {
             throw NotFoundException("Credit not found")
+        } catch (e: CreditAlreadyPaidException) {
+            throw BadRequestException("Credit already paid")
+        } catch (e: WrongTypeException) {
+            throw BadRequestException("Payment with wrong type")
+        } catch (e: WrongCurrencyException) {
+            throw BadRequestException("Payment with wrong currency")
+        } catch (e: PaymentLessThanMinimalException) {
+            throw BadRequestException("Payment should be more than minimum of 100")
+        } catch (e: PaymentLessThanRegularException) {
+            throw BadRequestException("Payment can't be less than regular payment")
+        } catch (e: PaymentMoreThanCreditAmontException) {
+            throw BadRequestException("Payment cannot be more than credit amount")
+        } catch (e: PaymentTooEarlyException) {
+            throw BadRequestException("Payment cannot be early than last payment date")
         }
 
         return getResponse(

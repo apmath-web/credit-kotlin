@@ -1,9 +1,9 @@
 package domain.repositories
 
 import domain.exceptions.CreditNotFoundException
-import domain.exceptions.RemoveAbsentCreditException
-import domain.exceptions.RemoveUnidentifiedCreditException
-import domain.exceptions.StoreIdentifiedCreditException
+import domain.exceptions.runtime.RemoveAbsentCreditException
+import domain.exceptions.runtime.RemoveUnidentifiedCreditException
+import domain.exceptions.runtime.StoreIdentifiedCreditException
 import domain.models.CreditInterface
 
 

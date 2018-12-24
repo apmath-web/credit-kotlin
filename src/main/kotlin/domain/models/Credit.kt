@@ -3,17 +3,13 @@ package domain.models
 import domain.data.Money
 import domain.data.State
 import domain.data.Type
-import domain.exceptions.ChangeIdentifiedCreditIdException
-import domain.exceptions.CreditAmountTooSmallException
-import domain.exceptions.PaymentLessThanMinimalException
-import domain.exceptions.PaymentMoreThanCreditAmontException
+import domain.exceptions.*
+import domain.exceptions.runtime.ChangeIdentifiedCreditIdException
 import domain.valueObjects.PersonInterface
 import domain.valueObjects.payment.PaidPayment
 import domain.valueObjects.payment.PaidPaymentInterface
 import domain.valueObjects.payment.PayPaymentInterface
 import java.time.LocalDate
-import java.time.temporal.ChronoUnit
-import java.util.stream.Stream
 import kotlin.math.pow
 import kotlin.math.roundToLong
 
@@ -37,7 +33,7 @@ class Credit(
     /**
      * @see <a href="https://docs.google.com/spreadsheets/d/1dQnuL1G1iUDinTugekdn79CxFYJv1sgswymuRsSowXU/edit#gid=0&range=G7">Округление итоговое</a>
      */
-    private val rounding: Int
+    private var rounding: Int
     /**
      * @see <a href="https://docs.google.com/spreadsheets/d/1dQnuL1G1iUDinTugekdn79CxFYJv1sgswymuRsSowXU/edit#gid=0&range=G10">Округление итоговое</a>
      */
@@ -46,12 +42,15 @@ class Credit(
      * @see <a href="https://docs.google.com/spreadsheets/d/1dQnuL1G1iUDinTugekdn79CxFYJv1sgswymuRsSowXU/edit#gid=0&range=G10">Округление итоговое</a>
      */
     private val payments: MutableList<PaidPaymentInterface> = arrayListOf()
-    private var remainAmount: Money = amount
+    var remainAmount: Money = amount
+
+    private var lastDate: LocalDate
 
     init {
         val annuityPayment = getAnnuityPayment()
         rounding = getRounding(annuityPayment)
         regularPayment = getRegularPayment(annuityPayment)
+        lastDate = agreementAt
     }
 
     override fun getPayments(type: Type?, state: State?): MutableList<PaidPaymentInterface> {
@@ -66,31 +65,34 @@ class Credit(
         return results
     }
 
-    //TODO Update with different currency
-    //TODO Update with early payments
     override fun writeOf(payment: PayPaymentInterface) {
-        if (payment.currency != currency)
-            throw Exception("Currency")//TODO remove exception
+        val type = getType(payment)
 
-        val percent: Long = (remainAmount.value * getPercentPayment(payment.date)).roundToLong()
-        val body: Long = payment.payment.value - percent
-
-        //TODO uncomment if necessary
-        //if (percent == 0L)
-        //    throw Exception("Same day") //create new exception
-        if (payment.payment == remainAmount) {
-            percent.minus(remainAmount.value % 10)
+        when {
+            isClosed()                          -> throw CreditAlreadyPaidException()
+            payment.currency != currency        -> throw WrongCurrencyException()
+            payment.type != type                -> throw WrongTypeException()
+            lastDate >= payment.date            -> throw PaymentTooEarlyException()
         }
 
-        if (payment.payment.value < 100)
-            throw PaymentLessThanMinimalException()
+        val percent = (remainAmount.value * getPercentPayment(payment.date)).roundToLong()
+        val body = payment.payment.value - percent
 
-        if (Money(body) > remainAmount)
-            throw PaymentMoreThanCreditAmontException()
+        when {
+            Money(body) > remainAmount                   -> throw PaymentMoreThanCreditAmontException()
+            (payment.payment < Money(100)
+                    && Money(body) != remainAmount)     -> throw PaymentLessThanMinimalException()
+            body == remainAmount.value                  -> percent.minus(remainAmount.value % (rounding / 10))
+            payment.payment < regularPayment    -> throw PaymentLessThanRegularException()
+        }
 
         remainAmount -= Money(body)
 
-        //TODO if (state==EARLY) recalculate
+        if (type == Type.EARLY) {
+            if (remainAmount != Money(0))
+                recalculate()
+        } else
+            lastDate = lastDate.plusMonths(1)
 
         payments.add(
             PaidPayment(
@@ -102,32 +104,34 @@ class Credit(
                 Money(getEarlyRepayment(payment.date))
             )
         )
+    }
 
+    //TODO write month check
+    //TODO write like 30-28 check
+    private fun getType(payment: PayPaymentInterface): Type {
+        return if (payment.date.dayOfMonth == agreementAt.dayOfMonth)
+            Type.REGULAR
+        else
+            Type.EARLY
     }
 
     private fun recalculate() {
         val annuityPayment = getAnnuityPayment()
+        rounding = getRounding(annuityPayment)
         regularPayment = getRegularPayment(annuityPayment)
+        println(regularPayment)
     }
 
+    /** @see <a href="http://mobile-testing.ru/wp-content/uploads/2013/03/percent_year.jpg">Percent</a> */
     private fun getPercentPayment(now: LocalDate): Double {
-        return percent / 365.0 / 100.0 * getDateRange(now)
+        val daysFirst = if (lastDate.isLeapYear) 366 else 365
+        val daysSecond = if (now.isLeapYear) 366 else 365
+        return percent / 100.0 / daysFirst * (lastDate.lengthOfMonth() - lastDate.dayOfMonth + 1) +
+                percent / 100.0 / daysSecond * (now.dayOfMonth - 1)
     }
 
-    private fun getDateRange(pending: LocalDate): Long {
-        return if (payments.size == 0)
-            getDateRange(agreementAt, pending)
-        else
-            getDateRange(payments[payments.lastIndex].date, pending)
-    }
-
-    private fun getDateRange(prev: LocalDate, now: LocalDate): Long {
-        return ChronoUnit.DAYS.between(prev, now)
-    }
-
-    //not exactly
     private fun getEarlyRepayment(now: LocalDate): Long {
-        return ((1 + getPercentPayment(now)) * remainAmount.value).toLong()
+        return ((1 + getPercentPayment(now)) * remainAmount.value).roundToLong()
     }
 
     private fun getAnnuityPayment(): Double {
@@ -135,7 +139,7 @@ class Credit(
         val monthPercent = percent.toDouble() / 12.0 / 100.0
         val power = (1.0 + monthPercent).pow(duration)
 
-        return amount.value.toDouble() * monthPercent * (power / (power - 1.0))
+        return remainAmount.value.toDouble() * monthPercent * (power / (power - 1.0))
     }
 
     private fun getRounding(annuityPayment: Double): Int {
@@ -156,5 +160,9 @@ class Credit(
     private fun getRegularPayment(annuityPayment: Double): Money {
 
         return Money((Math.ceil(annuityPayment / rounding.toDouble()) * rounding).toLong())
+    }
+
+    fun isClosed(): Boolean {
+        return remainAmount == Money(0)
     }
 }
