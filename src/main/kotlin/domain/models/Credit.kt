@@ -29,6 +29,9 @@ class Credit(
             }
         }
 
+    override var isFinished: Boolean = false
+        private set
+
     private val rounding: Int
     private var regularPayment: Money
     private val payments: MutableList<PaymentInterface> = arrayListOf()
