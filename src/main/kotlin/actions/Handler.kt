@@ -1,6 +1,7 @@
 package actions
 
 import actions.credit.Create
+import actions.credit.Delete
 import actions.credit.Payments
 import io.netty.handler.codec.http.*
 import domain.repositories.CreditsRepository
@@ -38,6 +39,8 @@ class Handler : AbstractHandler() {
             request.method() == HttpMethod.GET && Regex(Payments.ROUTE).matches(request.uri())
                 -> return Payments(repository).handle(request)
 
+            request.method() == HttpMethod.DELETE && Regex(Delete.ROUTE).matches(request.uri())
+                -> return Delete(repository).handle(request)
         }
 
         throw NotFoundException("Route not found")
