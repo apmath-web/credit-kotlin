@@ -1,42 +1,39 @@
 package actions.credit
 
-import actions.AbstractHandler
-import domain.exceptions.CreditNotFoundException
+import domain.exceptions.RemoveUnfinishedCreditException
 import domain.repositories.CreditsRepositoryInterface
 import exceptions.BadRequestException
+import exceptions.BadRequestValidationException
 import io.netty.handler.codec.http.FullHttpRequest
 import io.netty.handler.codec.http.FullHttpResponse
 import io.netty.handler.codec.http.HttpResponseStatus
-import java.lang.Exception
 
-class Delete(val repository: CreditsRepositoryInterface) : AbstractHandler() {
 
+class Delete(repository: CreditsRepositoryInterface) : AbstractCreditHandler(repository) {
 
     override fun handle(request: FullHttpRequest): FullHttpResponse {
+        if (!validateParameters(request)) {
+            throw BadRequestValidationException(validation)
+        }
 
-        val id = request.uri().subSequence(7, request.uri().length).toString().toInt()
+        val credit = getCredit()
 
         try {
-            if (id < 1) {
-                throw Exception()
-            }
-        } catch (e: Exception) {
-            throw BadRequestException("400")
+            repository.remove(credit)
+        } catch (e: RemoveUnfinishedCreditException) {
+            throw BadRequestException("Credit is not finished, only finished credits are allowed to remove")
         }
 
-        if (repository.get(id).amount.value != 0L) {
-            throw BadRequestException("100")
-        }
-
-        try {
-            repository.get(id)
-        } catch (e:CreditNotFoundException) {
-            throw BadRequestException("404")
-        }
-
-        repository.remove(repository.get(id))
-
-        return getResponse(HttpResponseStatus.OK)
+        return getResponse(HttpResponseStatus.NO_CONTENT)
     }
 
+    private fun validateParameters(request: FullHttpRequest): Boolean {
+        val groups = Regex(ROUTE).matchEntire(request.uri())!!.groups
+
+        return validateCreditId(groups)
+    }
+
+    companion object {
+        const val ROUTE = "^/credit/(?<id>[0-9]+)$"
+    }
 }
