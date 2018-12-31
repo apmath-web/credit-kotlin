@@ -14,7 +14,6 @@ abstract class AbstractHandler {
     protected fun getResponse(status: HttpResponseStatus): FullHttpResponse {
 
         return DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status)
-
     }
 
     protected fun getResponse(status: HttpResponseStatus, json: JSONObject): FullHttpResponse {
@@ -27,7 +26,7 @@ abstract class AbstractHandler {
         return getResponse(status, json.toString())
     }
 
-    protected fun getResponse(status: HttpResponseStatus, json: String): FullHttpResponse {
+    private fun getResponse(status: HttpResponseStatus, json: String): FullHttpResponse {
 
         val content = Unpooled.copiedBuffer(json, CharsetUtil.UTF_8)
 
