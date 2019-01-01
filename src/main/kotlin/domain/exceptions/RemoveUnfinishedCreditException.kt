@@ -1,3 +1,3 @@
 package domain.exceptions
 
-class RemoveUnfinishedCreditException : RuntimeException()
+class RemoveUnfinishedCreditException : Exception()
