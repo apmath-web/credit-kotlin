@@ -1,6 +1,7 @@
 package actions
 
 import actions.credit.Create
+import actions.credit.Delete
 import actions.credit.Payments
 import io.netty.handler.codec.http.*
 import domain.repositories.CreditsRepository
@@ -38,6 +39,8 @@ class Handler : AbstractHandler() {
             request.method() == HttpMethod.GET && Regex(Payments.ROUTE).matches(request.uri())
                 -> return Payments(repository).handle(request)
 
+            request.method() == HttpMethod.DELETE && Regex(Delete.ROUTE).matches(request.uri())
+                -> return Delete(repository).handle(request)
         }
 
         throw NotFoundException("Route not found")
@@ -60,14 +63,14 @@ class Handler : AbstractHandler() {
 
     private fun getUnexpectedExceptionResponse(e: Throwable): FullHttpResponse {
 
-        val json = JSONObject().put(MESSAGE, "Unexpected exception '${e.javaClass.toString()}' happend")
+        val json = JSONObject().put(MESSAGE, "Unexpected exception '${e.javaClass}' happend")
 
         return getResponse(HttpResponseStatus.INTERNAL_SERVER_ERROR, json)
     }
 
     private fun getExpectedExceptionResponse(e: Throwable): FullHttpResponse {
 
-        val json = JSONObject().put(MESSAGE, "Expected exception '${e.javaClass.toString()}' not catched")
+        val json = JSONObject().put(MESSAGE, "Expected exception '${e.javaClass}' not catched")
 
         return getResponse(HttpResponseStatus.INTERNAL_SERVER_ERROR, json)
     }
