@@ -44,7 +44,37 @@ class Credit(
     }
 
     override fun getPayments(type: Type?, state: State?): MutableList<PaymentInterface> {
-        return payments
+        val results: MutableList<PaymentInterface> = arrayListOf()
+
+        if (state == State.PAID || state == null) {
+            when (type) {
+                Type.REGULAR, Type.EARLY -> {
+                    // filter current payments list
+                }
+                null -> {
+                    // add all payments into result
+                }
+                Type.NEXT -> {
+                    // no results for that case
+                }
+            }
+        }
+
+        if (state == State.UPCOMING || state == null) {
+            when (type) {
+                Type.NEXT -> {
+                    // only next payment
+                }
+                Type.REGULAR, null -> {
+                    // all next payments
+                }
+                Type.EARLY -> {
+                    // no results for that case
+                }
+            }
+        }
+
+        return results
     }
 
     override fun writeOf(payment: PaymentInterface) {
