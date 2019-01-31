@@ -49,10 +49,10 @@ class Credit(
         if (state == State.PAID || state == null) {
             when (type) {
                 Type.REGULAR, Type.EARLY -> {
-                    // filter current payments list
+                    results.addAll(payments.filter { it.type == type })
                 }
                 null -> {
-                    // add all payments into result
+                    results.addAll(payments)
                 }
                 Type.NEXT -> {
                     // no results for that case
