@@ -1,9 +1,7 @@
 package domain.valueObjects
 
 
-class Message (field: String, text: String) : MessageInterface {
-
-    override val field: String = field
-
-    override val text: String = text
-}
+class Message (
+    override val field: String,
+    override val text: String
+) : MessageInterface

@@ -6,6 +6,7 @@ import domain.data.Money
 import domain.data.Currency
 import java.time.LocalDate
 
+
 interface PaymentInterface {
     val payment: Money
     val type: Type

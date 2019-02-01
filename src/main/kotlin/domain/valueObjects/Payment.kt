@@ -6,6 +6,7 @@ import domain.data.Money
 import domain.data.Currency
 import java.time.LocalDate
 
+
 class Payment(
     override val payment: Money,
     override val type: Type,
