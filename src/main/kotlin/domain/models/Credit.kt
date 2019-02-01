@@ -6,9 +6,11 @@ import domain.data.Type
 import domain.exceptions.ChangeIdentifiedCreditIdException
 import domain.exceptions.CreditAmountTooSmallException
 import domain.exceptions.PaymentLessThanMinimalException
+import domain.valueObjects.Payment
 import domain.valueObjects.PaymentInterface
 import domain.valueObjects.PersonInterface
 import java.time.LocalDate
+import java.time.YearMonth
 import kotlin.math.pow
 
 
@@ -60,13 +62,19 @@ class Credit(
             }
         }
 
-        if (state == State.UPCOMING || state == null) {
+        if ((state == State.UPCOMING || state == null) && (remainAmount.value > 0)) {
             when (type) {
                 Type.NEXT -> {
-                    // only next payment
+                    results.add(fetchNextPayment(getLastPayment(), Type.NEXT))
                 }
                 Type.REGULAR, null -> {
-                    // all next payments
+                    var payment = fetchNextPayment(getLastPayment(), Type.NEXT)
+                    results.add(payment)
+
+                    while (payment.remainCreditBody.value > 0) {
+                        payment = fetchNextPayment(payment, Type.REGULAR)
+                        results.add(payment)
+                    }
                 }
                 Type.EARLY -> {
                     // no results for that case
@@ -75,6 +83,61 @@ class Credit(
         }
 
         return results
+    }
+
+    private fun getLastPayment(): PaymentInterface {
+        return try {
+            payments.first()
+        } catch (e: NoSuchElementException) {
+            Payment(
+                Money(0),
+                Type.REGULAR,
+                currency,
+                agreementAt,
+                State.PAID,
+                Money(0),
+                Money(0),
+                amount,
+                amount
+            )
+        }
+    }
+
+    private fun fetchNextPayment(previousPayment: PaymentInterface, type: Type): PaymentInterface {
+        val date = fetchNextPaymentDate(previousPayment)
+
+        return Payment(
+            Money(regularPayment.value),
+            Type.REGULAR,
+            currency,
+            date,
+            State.UPCOMING,
+            Money(0), // TODO calc
+            Money(0), // TODO calc
+            amount, // TODO calc
+            amount // TODO calc
+        )
+    }
+
+    private fun fetchNextPaymentDate(previousPayment: PaymentInterface): LocalDate {
+        val paymentDayOfMonth = agreementAt.dayOfMonth
+
+        if (previousPayment.type == Type.EARLY) {
+            val paymentDateCandidate = previousPayment.date
+            val daysInMonth = YearMonth.of(paymentDateCandidate.year, paymentDateCandidate.monthValue).lengthOfMonth()
+
+            if (paymentDayOfMonth > paymentDateCandidate.dayOfMonth && daysInMonth > paymentDateCandidate.dayOfMonth) {
+                return paymentDateCandidate.withDayOfMonth(minOf(paymentDayOfMonth, daysInMonth))
+            }
+        }
+
+        val paymentDateCandidate = previousPayment.date.plusMonths(1)
+        val daysInMonth = YearMonth.of(paymentDateCandidate.year, paymentDateCandidate.monthValue).lengthOfMonth()
+
+        return when {
+            daysInMonth > paymentDayOfMonth -> paymentDateCandidate.withDayOfMonth(paymentDayOfMonth)
+            else                            -> paymentDateCandidate.withDayOfMonth(daysInMonth)
+        }
     }
 
     override fun writeOf(payment: PaymentInterface) {
