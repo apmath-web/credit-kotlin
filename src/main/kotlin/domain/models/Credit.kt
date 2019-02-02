@@ -10,8 +10,12 @@ import domain.valueObjects.Payment
 import domain.valueObjects.PaymentInterface
 import domain.valueObjects.PersonInterface
 import java.time.LocalDate
+import java.time.Year
 import java.time.YearMonth
+import java.time.temporal.ChronoUnit
+import kotlin.math.floor
 import kotlin.math.pow
+import kotlin.math.round
 
 
 class Credit(
@@ -85,9 +89,13 @@ class Credit(
         return results
     }
 
+    /**
+     * Returns last Payment
+     * If there is no any payments yet, create one with zeroes in a date of agreementAt
+     */
     private fun getLastPayment(): PaymentInterface {
         return try {
-            payments.first()
+            payments.last()
         } catch (e: NoSuchElementException) {
             Payment(
                 Money(0),
@@ -104,21 +112,40 @@ class Credit(
     }
 
     private fun fetchNextPayment(previousPayment: PaymentInterface, type: Type): PaymentInterface {
+        val body: Money
         val date = fetchNextPaymentDate(previousPayment)
+        var currentPayment = regularPayment
+        var percent = fetchPercent(previousPayment.date, date, previousPayment.remainCreditBody)
+
+        if (currentPayment.value - percent.value > previousPayment.remainCreditBody.value) {
+            body = Money(currentPayment.value - percent.value)
+        } else {
+            // different order and formulas for payment, body and percent calculation
+            // when it is last payment
+            currentPayment = Money(floor((percent.value + previousPayment.remainCreditBody.value)/10.0).toLong()*10)
+            body = Money(previousPayment.remainCreditBody.value)
+            percent = Money(currentPayment.value - body.value)
+        }
 
         return Payment(
-            Money(regularPayment.value),
+            currentPayment,
             Type.REGULAR,
             currency,
             date,
             State.UPCOMING,
-            Money(0), // TODO calc
-            Money(0), // TODO calc
-            amount, // TODO calc
-            amount // TODO calc
+            percent,
+            body,
+            Money(previousPayment.remainCreditBody.value - body.value),
+            Money(floor((previousPayment.remainCreditBody.value + percent.value)/10.0).toLong()*10)
         )
     }
 
+    /**
+     * Calculates the next regular payment date
+     * Uses knowledge of previous payment and agreementAt date
+     * Next payment date should have same dayOfMonth as agreementAt date does
+     * If payment date month have such day, last month day otherwise
+     */
     private fun fetchNextPaymentDate(previousPayment: PaymentInterface): LocalDate {
         val paymentDayOfMonth = agreementAt.dayOfMonth
 
@@ -138,6 +165,24 @@ class Credit(
             daysInMonth > paymentDayOfMonth -> paymentDateCandidate.withDayOfMonth(paymentDayOfMonth)
             else                            -> paymentDateCandidate.withDayOfMonth(daysInMonth)
         }
+    }
+
+    /**
+     * Calculate percents according to document
+     * @link http://mobile-testing.ru/loancalc/rachet_dosrochnogo_pogashenia/
+     */
+    private fun fetchPercent(from: LocalDate, to: LocalDate, creditBody: Money, inclusiveTo: Boolean = false): Money {
+        if (from.year != to.year) {
+            val firstPercent = fetchPercent(from, LocalDate.of(from.year, 12, 31), creditBody, true)
+            val secondPercent = fetchPercent(LocalDate.of(to.year, 1, 1), to, creditBody, false)
+            return Money(firstPercent.value + secondPercent.value)
+        }
+        val percentDays = from.until(to, ChronoUnit.DAYS) - if (inclusiveTo) { 0 } else { 1 }
+        val yearDays = Year.of(from.year).length()
+
+        return Money(round(
+            creditBody.value.toDouble()*percent.toDouble()*percentDays.toDouble()/100.0/yearDays.toDouble()
+        ).toLong())
     }
 
     override fun writeOf(payment: PaymentInterface) {
