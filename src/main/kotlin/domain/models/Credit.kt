@@ -117,7 +117,7 @@ class Credit(
         var currentPayment = regularPayment
         var percent = fetchPercent(previousPayment.date, date, previousPayment.remainCreditBody)
 
-        if (currentPayment.value - percent.value > previousPayment.remainCreditBody.value) {
+        if (currentPayment.value - percent.value < previousPayment.remainCreditBody.value) {
             body = Money(currentPayment.value - percent.value)
         } else {
             // different order and formulas for payment, body and percent calculation
@@ -172,12 +172,12 @@ class Credit(
      * @link http://mobile-testing.ru/loancalc/rachet_dosrochnogo_pogashenia/
      */
     private fun fetchPercent(from: LocalDate, to: LocalDate, creditBody: Money, inclusiveTo: Boolean = false): Money {
-        if (from.year != to.year) {
+        if (from.year != to.year && to.dayOfMonth != 1) {
             val firstPercent = fetchPercent(from, LocalDate.of(from.year, 12, 31), creditBody, true)
             val secondPercent = fetchPercent(LocalDate.of(to.year, 1, 1), to, creditBody, false)
             return Money(firstPercent.value + secondPercent.value)
         }
-        val percentDays = from.until(to, ChronoUnit.DAYS) - if (inclusiveTo) { 0 } else { 1 }
+        val percentDays = from.until(to, ChronoUnit.DAYS) + if (inclusiveTo) { 1 } else { 0 }
         val yearDays = Year.of(from.year).length()
 
         return Money(round(
