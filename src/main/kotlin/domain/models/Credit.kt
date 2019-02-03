@@ -75,7 +75,7 @@ class Credit(
                     var payment = fetchNextPayment(getLastPayment(), Type.NEXT)
                     results.add(payment)
 
-                    while (payment.remainCreditBody.value > 0) {
+                    while (payment.payment.value != payment.fullEarlyRepayment.value) {
                         payment = fetchNextPayment(payment, Type.REGULAR)
                         results.add(payment)
                     }
@@ -114,16 +114,18 @@ class Credit(
     private fun fetchNextPayment(previousPayment: PaymentInterface, type: Type): PaymentInterface {
         val body: Money
         val date = fetchNextPaymentDate(previousPayment)
+        val remainCreditBody = Money(previousPayment.remainCreditBody.value - previousPayment.body.value)
         var currentPayment = regularPayment
-        var percent = fetchPercent(previousPayment.date, date, previousPayment.remainCreditBody)
 
-        if (currentPayment.value - percent.value < previousPayment.remainCreditBody.value) {
+        var percent = fetchPercent(previousPayment.date, date, remainCreditBody)
+
+        if (currentPayment.value - percent.value < remainCreditBody.value) {
             body = Money(currentPayment.value - percent.value)
         } else {
             // different order and formulas for payment, body and percent calculation
             // when it is last payment
-            currentPayment = Money(floor((percent.value + previousPayment.remainCreditBody.value)/10.0).toLong()*10)
-            body = Money(previousPayment.remainCreditBody.value)
+            currentPayment = Money(floor((percent.value + remainCreditBody.value)/10.0).toLong()*10)
+            body = Money(remainCreditBody.value)
             percent = Money(currentPayment.value - body.value)
         }
 
@@ -135,8 +137,8 @@ class Credit(
             State.UPCOMING,
             percent,
             body,
-            Money(previousPayment.remainCreditBody.value - body.value),
-            Money(floor((previousPayment.remainCreditBody.value + percent.value)/10.0).toLong()*10)
+            remainCreditBody,
+            Money(floor((remainCreditBody.value + percent.value)/10.0).toLong()*10)
         )
     }
 
