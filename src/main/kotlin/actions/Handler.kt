@@ -3,6 +3,7 @@ package actions
 import actions.credit.Create
 import actions.credit.Delete
 import actions.credit.Payments
+import actions.credit.Read
 import io.netty.handler.codec.http.*
 import domain.repositories.CreditsRepository
 import domain.repositories.CreditsRepositoryInterface
@@ -16,10 +17,10 @@ class Handler : AbstractHandler() {
 
     override fun handle(request: FullHttpRequest): FullHttpResponse {
 
-        try {
-            return routeRequest(request)
+        return try {
+            routeRequest(request)
         } catch (e: Throwable) {
-            return when (e) {
+            when (e) {
                 // order make sense
                 is ApiException -> getResponse(e)
                 is RuntimeException, is Error -> getUnexpectedExceptionResponse(e)
@@ -36,11 +37,14 @@ class Handler : AbstractHandler() {
             request.method() == HttpMethod.POST && request.uri() == "/credit"
                 -> return Create(repository).handle(request)
 
-            request.method() == HttpMethod.GET && Regex(Payments.ROUTE).matches(request.uri())
-                -> return Payments(repository).handle(request)
+            request.method() == HttpMethod.GET && Regex(Read.ROUTE).matches(request.uri())
+                -> return Read(repository).handle(request)
 
             request.method() == HttpMethod.DELETE && Regex(Delete.ROUTE).matches(request.uri())
                 -> return Delete(repository).handle(request)
+
+            request.method() == HttpMethod.GET && Regex(Payments.ROUTE).matches(request.uri())
+                -> return Payments(repository).handle(request)
         }
 
         throw NotFoundException("Route not found")
