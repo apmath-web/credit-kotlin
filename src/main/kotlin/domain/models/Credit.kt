@@ -131,7 +131,7 @@ class Credit(
 
         return Payment(
             currentPayment,
-            Type.REGULAR,
+            type,
             currency,
             date,
             State.UPCOMING,
