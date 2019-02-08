@@ -70,20 +70,14 @@ class List(repository: CreditsRepositoryInterface) : AbstractCreditHandler(repos
         val value = query[TYPE] ?: return true
 
         if (value.toLowerCase() != value) {
-            validation.addMessage(Message(
-                TYPE,
-                MESSAGE_TYPE_UNKNOWN
-            ))
+            validation.addMessage(Message(TYPE, MESSAGE_TYPE_UNKNOWN))
             return false
         }
 
         try {
             paymentsType = Type.valueOf(value.toUpperCase())
         } catch (e: IllegalArgumentException) {
-            validation.addMessage(Message(
-                TYPE,
-                MESSAGE_TYPE_UNKNOWN
-            ))
+            validation.addMessage(Message(TYPE, MESSAGE_TYPE_UNKNOWN))
             return false
         }
 
@@ -95,20 +89,14 @@ class List(repository: CreditsRepositoryInterface) : AbstractCreditHandler(repos
         val value = query[STATE] ?: return true
 
         if (value.toLowerCase() != value) {
-            validation.addMessage(Message(
-                STATE,
-                MESSAGE_STATE_UNKNOWN
-            ))
+            validation.addMessage(Message(STATE, MESSAGE_STATE_UNKNOWN))
             return false
         }
 
         try {
             paymentsState = State.valueOf(value.toUpperCase())
         } catch (e: IllegalArgumentException) {
-            validation.addMessage(Message(
-                STATE,
-                MESSAGE_STATE_UNKNOWN
-            ))
+            validation.addMessage(Message(STATE, MESSAGE_STATE_UNKNOWN))
             return false
         }
 
