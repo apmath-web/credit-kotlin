@@ -9,13 +9,12 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import domain.models.Credit
-import domain.valueObjects.payment.PayPayment
+import domain.valueObjects.PaymentRequest
 import viewModels.Payment
 import viewModels.Credit as CreditViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.stream.Stream
-import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -91,7 +90,7 @@ class CreditWithPaymentsTest {
         )
     }
 
-    fun payment(amount: Int, date: LocalDate): PayPayment {
+    fun payment(amount: Int, date: LocalDate): PaymentRequest {
         val js = JSONObject()
             .put("payment", amount)
             .put("date", date.format(DateTimeFormatter.ISO_DATE))
@@ -103,7 +102,7 @@ class CreditWithPaymentsTest {
 
         println(js)
 
-        return PayPayment(
+        return PaymentRequest(
             paymentVM.payment!!,
             paymentVM.type!!,
             paymentVM.currency!!,

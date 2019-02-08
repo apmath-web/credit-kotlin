@@ -1,3 +1,3 @@
 package domain.exceptions
 
-class WrongCurrencyException : Exception()
+class PaymentCurrencyInvalidException : Exception()

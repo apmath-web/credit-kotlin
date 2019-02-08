@@ -1,3 +1,3 @@
 package domain.exceptions
 
-class PaymentMoreThanCreditAmontException : Exception()
+class PaymentMoreThanFullEarlyRepaimentException : Exception()

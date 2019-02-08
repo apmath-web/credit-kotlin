@@ -5,7 +5,6 @@ import domain.data.Money
 import domain.data.State
 import domain.data.Type
 import domain.valueObjects.Message
-import domain.valueObjects.payment.PaidPaymentInterface
 import org.json.JSONObject
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -23,7 +22,7 @@ class Payment : ViewModel(), PaymentInterface {
     override var remainCreditBody: Money? = null
     override var fullEarlyRepayment: Money? = null
 
-    override fun hydrate(payment: PaidPaymentInterface) {
+    override fun hydrate(payment: PaymentInterfaceValueObject) {
         type = payment.type
         state = payment.state
         date = payment.date
@@ -43,7 +42,7 @@ class Payment : ViewModel(), PaymentInterface {
     }
 
     private fun loadAndValidateDate(json: JSONObject): Boolean {
-        val raw = loadField(json, DATE, default = LocalDate.now().format(DateTimeFormatter.ISO_DATE)) ?: return true
+        val raw = loadField(json, DATE, false, false) ?: return true
 
         if (raw !is String) {
             addMessage(Message(DATE, MESSAGE_NOT_STRING))

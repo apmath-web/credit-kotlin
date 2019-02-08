@@ -1,3 +1,3 @@
 package domain.exceptions
 
-class PaymentTooEarlyException : Exception()
+class PaymentDateMoreThanNextPaymentDateException : Exception()

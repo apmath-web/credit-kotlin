@@ -1,3 +1,3 @@
 package domain.exceptions
 
-class WrongTypeException : Exception()
+class PaymentTypeInvalidException : Exception()

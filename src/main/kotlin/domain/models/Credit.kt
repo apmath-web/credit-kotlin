@@ -7,6 +7,7 @@ import domain.exceptions.*
 import domain.exceptions.runtime.*
 import domain.valueObjects.Payment
 import domain.valueObjects.PaymentInterface
+import domain.valueObjects.PaymentRequestInterface
 import domain.valueObjects.PersonInterface
 import java.time.LocalDate
 import java.time.Year
@@ -15,7 +16,6 @@ import java.time.temporal.ChronoUnit
 import kotlin.math.floor
 import kotlin.math.pow
 import kotlin.math.round
-import kotlin.math.roundToLong
 
 
 class Credit(
@@ -54,12 +54,10 @@ class Credit(
      */
     private val payments: MutableList<PaymentInterface> = arrayListOf()
 
-    var remainAmount: Money = amount
-
-    private var lastDate: LocalDate
+    var remainPaymentsAmount: Int = duration
 
     init {
-        val annuityPayment = getAnnuityPayment()
+        val annuityPayment = getAnnuityPayment(amount, duration)
         rounding = getRounding(annuityPayment)
         regularPayment = getRegularPayment(annuityPayment)
     }
@@ -81,17 +79,17 @@ class Credit(
             }
         }
 
-        if ((state == State.UPCOMING || state == null) && (remainAmount.value > 0)) {
+        if ((state == State.UPCOMING || state == null) && !isFinished) {
             when (type) {
                 Type.NEXT -> {
-                    results.add(fetchNextPayment(getLastPayment(), Type.NEXT))
+                    results.add(getNextPayment(getLastPayment(), Type.NEXT))
                 }
                 Type.REGULAR, null -> {
-                    var payment = fetchNextPayment(getLastPayment(), Type.NEXT)
+                    var payment = getNextPayment(getLastPayment(), Type.NEXT)
                     results.add(payment)
 
                     while (payment.payment.value != payment.fullEarlyRepayment.value) {
-                        payment = fetchNextPayment(payment, Type.REGULAR)
+                        payment = getNextPayment(payment, Type.REGULAR)
                         results.add(payment)
                     }
                 }
@@ -126,13 +124,16 @@ class Credit(
         }
     }
 
-    private fun fetchNextPayment(previousPayment: PaymentInterface, type: Type): PaymentInterface {
+    private fun getNextPayment(previousPayment: PaymentInterface, type: Type, nextPaymentDate: LocalDate? = null): PaymentInterface {
         val body: Money
-        val date = fetchNextPaymentDate(previousPayment)
+        val date = when (nextPaymentDate) {
+            null -> getNextPaymentDate(previousPayment)
+            else -> nextPaymentDate
+        }
         val remainCreditBody = Money(previousPayment.remainCreditBody.value - previousPayment.body.value)
         var currentPayment = regularPayment
 
-        var percent = fetchPercent(previousPayment.date, date, remainCreditBody)
+        var percent = getPercent(previousPayment.date, date, remainCreditBody)
 
         if (currentPayment.value - percent.value < remainCreditBody.value) {
             body = Money(currentPayment.value - percent.value)
@@ -163,7 +164,7 @@ class Credit(
      * Next payment date should have same dayOfMonth as agreementAt date does
      * If payment date month have such day, last month day otherwise
      */
-    private fun fetchNextPaymentDate(previousPayment: PaymentInterface): LocalDate {
+    private fun getNextPaymentDate(previousPayment: PaymentInterface): LocalDate {
         val paymentDayOfMonth = agreementAt.dayOfMonth
 
         if (previousPayment.type == Type.EARLY) {
@@ -188,10 +189,10 @@ class Credit(
      * Calculate percents according to document
      * @link http://mobile-testing.ru/loancalc/rachet_dosrochnogo_pogashenia/
      */
-    private fun fetchPercent(from: LocalDate, to: LocalDate, creditBody: Money, inclusiveTo: Boolean = false): Money {
+    private fun getPercent(from: LocalDate, to: LocalDate, creditBody: Money, inclusiveTo: Boolean = false): Money {
         if (from.year != to.year && to.dayOfMonth != 1) {
-            val firstPercent = fetchPercent(from, LocalDate.of(from.year, 12, 31), creditBody, true)
-            val secondPercent = fetchPercent(LocalDate.of(to.year, 1, 1), to, creditBody, false)
+            val firstPercent = getPercent(from, LocalDate.of(from.year, 12, 31), creditBody, true)
+            val secondPercent = getPercent(LocalDate.of(to.year, 1, 1), to, creditBody, false)
             return Money(firstPercent.value + secondPercent.value)
         }
         val percentDays = from.until(to, ChronoUnit.DAYS) + if (inclusiveTo) { 1 } else { 0 }
@@ -202,75 +203,86 @@ class Credit(
         ).toLong())
     }
 
-    override fun writeOf(payment: PayPaymentInterface) {
-        val type = getType(payment)
+    override fun writeOf(paymentRequest: PaymentRequestInterface) {
+        val paymentType = paymentRequest.type
+        val lastPayment = getLastPayment()
+        var nextPayment = getNextPayment(lastPayment, Type.REGULAR)
+        val paymentRequestDate = getPaymentRequestDate(paymentRequest, nextPayment)
+        var isPaymentLikeRegular = false
 
         when {
-            isFinished                          -> throw CreditAlreadyPaidException()
-            payment.currency != currency        -> throw WrongCurrencyException()
-            payment.type != type                -> throw WrongTypeException()
-            lastDate >= payment.date            -> throw PaymentTooEarlyException()
+            isFinished
+                -> throw CreditAlreadyPaidException()
+            // Currency
+            paymentRequest.currency != null && paymentRequest.currency != currency
+                -> throw PaymentCurrencyInvalidException()
+            // Date
+            paymentRequestDate > nextPayment.date
+                -> throw PaymentDateMoreThanNextPaymentDateException()
+            paymentRequestDate <= lastPayment.date
+                -> throw PaymentDateOutdatedException()
+            // Type
+            paymentRequest.date != nextPayment.date && paymentType == Type.REGULAR
+                -> throw PaymentTypeInvalidException()
+            paymentRequest.date == nextPayment.date && paymentType == Type.EARLY
+                    && paymentRequest.payment.value == nextPayment.payment.value
+                -> throw PaymentTypeInvalidException()
         }
 
-        val percent = (remainAmount.value * getPercentPayment(payment.date)).roundToLong()
-        val body = payment.payment.value - percent
+        if (nextPayment.date != paymentRequestDate) {
+            nextPayment = getNextPayment(lastPayment, Type.EARLY, paymentRequestDate)
+        } else {
+            isPaymentLikeRegular = true
+        }
 
         when {
-            Money(body) > remainAmount                   -> throw PaymentMoreThanCreditAmontException()
-            (payment.payment < Money(100)
-                    && Money(body) != remainAmount)     -> throw PaymentLessThanMinimalException()
-            body == remainAmount.value                  -> percent.minus(remainAmount.value % (rounding / 10))
-            payment.payment < regularPayment    -> throw PaymentLessThanRegularException()
+            // Payment
+            paymentRequest.payment.value < 100 && paymentRequest.payment.value != nextPayment.payment.value
+                -> throw PaymentLessThanMinimalException()
+            paymentRequest.payment.value > nextPayment.fullEarlyRepayment.value
+                -> throw PaymentMoreThanFullEarlyRepaimentException()
+            paymentRequest.payment.value < regularPayment.value
+                    && regularPayment.value < nextPayment.fullEarlyRepayment.value
+                -> throw PaymentLessThanRegularException()
         }
 
-        remainAmount -= Money(body)
-
-        if (type == Type.EARLY) {
-            if (remainAmount != Money(0))
-                recalculate()
-        } else
-            lastDate = lastDate.plusMonths(1)
-
-        payments.add(
-            PaidPayment(
-                payment,
-                State.PAID,
-                Money(percent),
-                Money(body),
-                remainAmount,
-                Money(getEarlyRepayment(payment.date))
-            )
+        val payment = Payment(
+            paymentRequest.payment,
+            paymentType,
+            currency,
+            paymentRequestDate,
+            State.PAID,
+            nextPayment.percent,
+            Money(paymentRequest.payment.value - nextPayment.percent.value),
+            nextPayment.remainCreditBody,
+            nextPayment.fullEarlyRepayment
         )
-    }
-    //TODO write month check
-    //TODO write like 30-28 check
-    private fun getType(payment: PayPaymentInterface): Type {
-        return if (payment.date.dayOfMonth == agreementAt.dayOfMonth)
-            Type.REGULAR
-        else
-            Type.EARLY
+
+        if (isPaymentLikeRegular) {
+            remainPaymentsAmount--
+        }
+        payments.add(payment)
+
+        if (paymentType == Type.EARLY) {
+            val annuityPayment = getAnnuityPayment(
+                Money(payment.remainCreditBody.value - payment.body.value),
+                remainPaymentsAmount
+            )
+            regularPayment = getRegularPayment(annuityPayment)
+            if (regularPayment.value < 100) {
+                regularPayment = Money(100)
+            }
+        }
     }
 
-    private fun recalculate() {
-        val annuityPayment = getAnnuityPayment()
-        rounding = getRounding(annuityPayment)
-        regularPayment = getRegularPayment(annuityPayment)
-        println(regularPayment)
+    private fun getPaymentRequestDate(paymentRequest: PaymentRequestInterface, nextPayment: PaymentInterface): LocalDate {
+        return when (paymentRequest.date) {
+            null -> nextPayment.date
+            else -> paymentRequest.date!!
+        }
     }
 
-    /** @see <a href="http://mobile-testing.ru/wp-content/uploads/2013/03/percent_year.jpg">Percent</a> */
-    private fun getPercentPayment(now: LocalDate): Double {
-        val daysFirst = if (lastDate.isLeapYear) 366 else 365
-        val daysSecond = if (now.isLeapYear) 366 else 365
-        return percent / 100.0 / daysFirst * (lastDate.lengthOfMonth() - lastDate.dayOfMonth + 1) +
-                percent / 100.0 / daysSecond * (now.dayOfMonth - 1)
-    }
-
-    private fun getEarlyRepayment(now: LocalDate): Long {
-        return ((1 + getPercentPayment(now)) * remainAmount.value).roundToLong()
-    }
-
-    private fun getAnnuityPayment(): Double {
+    private fun getAnnuityPayment(amount: Money, duration: Int): Double {
 
         val monthPercent = percent.toDouble()/12.0/100.0
         val power = (1.0 + monthPercent).pow(duration)

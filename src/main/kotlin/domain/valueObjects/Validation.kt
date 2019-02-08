@@ -8,8 +8,7 @@ class Validation : ValidationInterface {
         messages.add(message)
     }
 
-    operator fun plus(validation: ValidationInterface): ValidationInterface {
+    override fun addMessages(validation: ValidationInterface) {
         messages.addAll(validation.messages)
-        return this
     }
 }
