@@ -3,13 +3,10 @@ package actions.credit.payments
 import actions.credit.AbstractCreditHandler
 import domain.data.Type
 import domain.data.State
-import domain.exceptions.CreditNotFoundException
-import domain.models.CreditInterface
 import io.netty.handler.codec.http.*
 import domain.repositories.CreditsRepositoryInterface
 import domain.valueObjects.Message
 import exceptions.BadRequestValidationException
-import exceptions.NotFoundException
 import org.json.JSONArray
 import org.json.JSONObject
 import viewModels.Credit as CreditViewModel
@@ -18,7 +15,7 @@ import viewModels.Payment as PaymentViewModel
 import java.util.HashMap
 
 
-class ListPayments(private val repository: CreditsRepositoryInterface) : AbstractCreditHandler() {
+class List(repository: CreditsRepositoryInterface) : AbstractCreditHandler(repository) {
 
     var paymentsType: Type? = null
     var paymentsState: State? = null
@@ -28,13 +25,7 @@ class ListPayments(private val repository: CreditsRepositoryInterface) : Abstrac
             throw BadRequestValidationException(validation)
         }
 
-        val credit: CreditInterface
-
-        try {
-            credit = repository.get(creditId as Int)
-        } catch (e: CreditNotFoundException) {
-            throw NotFoundException("Credit not found")
-        }
+        val credit = getCredit()
 
         val payments = credit.getPayments(paymentsType, paymentsState)
         val paymentsJson = JSONArray()

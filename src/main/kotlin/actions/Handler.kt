@@ -1,8 +1,10 @@
 package actions
 
-import actions.credit.payments.AddPayment
 import actions.credit.Create
-import actions.credit.payments.ListPayments
+import actions.credit.Delete
+import actions.credit.Payments
+import actions.credit.Read
+import actions.credit.payments.AddPayment
 import io.netty.handler.codec.http.*
 import domain.repositories.CreditsRepository
 import domain.repositories.CreditsRepositoryInterface
@@ -16,10 +18,10 @@ class Handler : AbstractHandler() {
 
     override fun handle(request: FullHttpRequest): FullHttpResponse {
 
-        try {
-            return routeRequest(request)
+        return try {
+            routeRequest(request)
         } catch (e: Throwable) {
-            return when (e) {
+            when (e) {
                 // order make sense
                 is ApiException -> getResponse(e)
                 is RuntimeException, is Error -> getUnexpectedExceptionResponse(e)
@@ -36,11 +38,18 @@ class Handler : AbstractHandler() {
             request.method() == HttpMethod.POST && request.uri() == "/credit"
                 -> return Create(repository).handle(request)
 
-            request.method() == HttpMethod.GET && Regex(ListPayments.ROUTE).matches(request.uri())
-                -> return ListPayments(repository).handle(request)
+            request.method() == HttpMethod.GET && Regex(Read.ROUTE).matches(request.uri())
+                -> return Read(repository).handle(request)
+
+            request.method() == HttpMethod.DELETE && Regex(Delete.ROUTE).matches(request.uri())
+                -> return Delete(repository).handle(request)
+
+            request.method() == HttpMethod.GET && Regex(Payments.ROUTE).matches(request.uri())
+                -> return Payments(repository).handle(request)
 
             request.method() == HttpMethod.PUT && Regex(AddPayment.ROUTE).matches(request.uri())
                 -> return AddPayment(repository).handle(request)
+
         }
 
         throw NotFoundException("Route not found")
@@ -63,14 +72,14 @@ class Handler : AbstractHandler() {
 
     private fun getUnexpectedExceptionResponse(e: Throwable): FullHttpResponse {
 
-        val json = JSONObject().put(MESSAGE, "Unexpected exception '${e.javaClass.toString()}' happend")
+        val json = JSONObject().put(MESSAGE, "Unexpected exception '${e.javaClass}' happend")
 
         return getResponse(HttpResponseStatus.INTERNAL_SERVER_ERROR, json)
     }
 
     private fun getExpectedExceptionResponse(e: Throwable): FullHttpResponse {
 
-        val json = JSONObject().put(MESSAGE, "Expected exception '${e.javaClass.toString()}' not catched")
+        val json = JSONObject().put(MESSAGE, "Expected exception '${e.javaClass}' not catched")
 
         return getResponse(HttpResponseStatus.INTERNAL_SERVER_ERROR, json)
     }

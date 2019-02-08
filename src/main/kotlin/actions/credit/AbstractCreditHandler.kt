@@ -1,13 +1,17 @@
 package actions.credit
 
 import actions.AbstractHandler
+import domain.exceptions.CreditNotFoundException
+import domain.models.CreditInterface
+import domain.repositories.CreditsRepositoryInterface
 import domain.valueObjects.Message
 import domain.valueObjects.Validation
+import exceptions.NotFoundException
 
 
-abstract class AbstractCreditHandler : AbstractHandler() {
+abstract class AbstractCreditHandler(protected val repository: CreditsRepositoryInterface) : AbstractHandler() {
 
-    protected var creditId: Int? = null
+    private var creditId: Int? = null
 
     protected val validation = Validation()
 
@@ -26,6 +30,16 @@ abstract class AbstractCreditHandler : AbstractHandler() {
         }
 
         return true
+    }
+
+    protected fun getCredit(): CreditInterface {
+        val credit: CreditInterface
+        try {
+            credit = repository.get(creditId as Int)
+        } catch (e: CreditNotFoundException) {
+            throw NotFoundException("Credit not found")
+        }
+        return credit
     }
 
     companion object {

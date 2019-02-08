@@ -19,6 +19,7 @@ interface CreditInterface {
     val currency: Currency
     val duration: Int
     val percent: Int
+    val isFinished: Boolean
 
     fun getPayments(type: Type?, state: State?): List<PaidPaymentInterface>
     fun writeOf(payment: PayPaymentInterface)

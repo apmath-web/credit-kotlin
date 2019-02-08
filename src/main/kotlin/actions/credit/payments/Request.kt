@@ -3,7 +3,7 @@ package actions.credit.payments
 import actions.credit.AbstractCreditHandler
 import domain.exceptions.*
 import domain.repositories.CreditsRepositoryInterface
-import domain.valueObjects.payment.PayPayment
+import domain.valueObjects.PaymentRequest
 import exceptions.BadRequestException
 import exceptions.BadRequestValidationException
 import exceptions.NotFoundException
@@ -16,7 +16,7 @@ import viewModels.Payment
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-class AddPayment(private val repository: CreditsRepositoryInterface) : AbstractCreditHandler() {
+class Request(repository: CreditsRepositoryInterface) : AbstractCreditHandler(repository) {
 
     private val payment: Payment = Payment()
 
@@ -25,37 +25,37 @@ class AddPayment(private val repository: CreditsRepositoryInterface) : AbstractC
         if (!validateRequest(request))
             throw BadRequestValidationException(validation + payment.validation)
 
-        val payment = PayPayment(
+        val paymentRequest = PaymentRequest(
             payment.payment!!,
             payment.type!!,
-            payment.currency!!,
-            payment.date!!
+            payment.currency,
+            payment.date
         )
 
+        val credit = getCredit()
+
         try {
-            repository.get(creditId!!).writeOf(payment)
-        } catch (e: CreditNotFoundException) {
-            throw NotFoundException("Credit not found")
+            credit.writeOf(paymentRequest)
         } catch (e: CreditAlreadyPaidException) {
             throw BadRequestException("Credit already paid")
-        } catch (e: WrongTypeException) {
-            throw BadRequestException("Payment with wrong type")
-        } catch (e: WrongCurrencyException) {
+        } catch (e: PaymentCurrencyInvalidException) {
             throw BadRequestException("Payment with wrong currency")
+        } catch (e: PaymentTypeInvalidException) {
+            throw BadRequestException("Payment with wrong type")
         } catch (e: PaymentLessThanMinimalException) {
             throw BadRequestException("Payment should be more than minimum of 100")
         } catch (e: PaymentLessThanRegularException) {
             throw BadRequestException("Payment can't be less than regular payment")
-        } catch (e: PaymentMoreThanCreditAmontException) {
+        } catch (e: PaymentMoreThanFullEarlyRepaimentException) {
             throw BadRequestException("Payment cannot be more than credit amount")
-        } catch (e: PaymentTooEarlyException) {
+        } catch (e: PaymentDateMoreThanNextPaymentDateException) {
             throw BadRequestException("Payment cannot be early than last payment date")
         }
 
-        return getResponse(
-            HttpResponseStatus.OK, JSONObject()
-                .put(PAYMENT_EXECUTED_AT, LocalDate.now().format(DateTimeFormatter.ISO_DATE))
-        )
+        val json = JSONObject()
+            .put(PAYMENT_EXECUTED_AT, LocalDate.now().format(DateTimeFormatter.ISO_DATE))
+
+        return getResponse(HttpResponseStatus.OK, json)
     }
 
     private fun validateRequest(request: FullHttpRequest): Boolean {

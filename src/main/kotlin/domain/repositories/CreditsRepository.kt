@@ -1,9 +1,7 @@
 package domain.repositories
 
-import domain.exceptions.CreditNotFoundException
-import domain.exceptions.runtime.RemoveAbsentCreditException
-import domain.exceptions.runtime.RemoveUnidentifiedCreditException
-import domain.exceptions.runtime.StoreIdentifiedCreditException
+import domain.exceptions.*
+import domain.exceptions.runtime.*
 import domain.models.CreditInterface
 
 
@@ -24,12 +22,12 @@ class CreditsRepository : CreditsRepositoryInterface {
     }
 
     override fun remove(credit: CreditInterface) {
-        if (credit.id != null) {
-            throw RemoveUnidentifiedCreditException()
+        when {
+            credit.id != null               -> throw RemoveUnidentifiedCreditException()
+            !credit.isFinished              -> throw RemoveUnfinishedCreditException()
+            !credits.containsKey(credit.id) -> throw RemoveAbsentCreditException()
         }
-        if (!credits.containsKey(credit.id)) {
-            throw RemoveAbsentCreditException()
-        }
+
         credits.remove(credit.id)
     }
 }
