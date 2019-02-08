@@ -1,35 +1,37 @@
 package actions.credit.payments
 
 import actions.credit.AbstractCreditHandler
+import domain.data.Money
+import domain.data.Type
 import domain.exceptions.*
 import domain.repositories.CreditsRepositoryInterface
 import domain.valueObjects.PaymentRequest
 import exceptions.BadRequestException
 import exceptions.BadRequestValidationException
-import exceptions.NotFoundException
 import io.netty.handler.codec.http.FullHttpRequest
 import io.netty.handler.codec.http.FullHttpResponse
 import io.netty.handler.codec.http.HttpResponseStatus
 import io.netty.util.CharsetUtil
 import org.json.JSONObject
-import viewModels.Payment
+import viewModels.Payment as PaymentViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 class Request(repository: CreditsRepositoryInterface) : AbstractCreditHandler(repository) {
 
-    private val payment: Payment = Payment()
+    private val paymentViewModel = PaymentViewModel()
 
     @Throws
     override fun handle(request: FullHttpRequest): FullHttpResponse {
-        if (!validateRequest(request))
-            throw BadRequestValidationException(validation + payment.validation)
+        if (!validateRequest(request)) {
+            throw BadRequestValidationException(validation)
+        }
 
         val paymentRequest = PaymentRequest(
-            payment.payment!!,
-            payment.type!!,
-            payment.currency,
-            payment.date
+            paymentViewModel.payment as Money,
+            paymentViewModel.type as Type,
+            paymentViewModel.currency,
+            paymentViewModel.date
         )
 
         val credit = getCredit()
@@ -45,11 +47,11 @@ class Request(repository: CreditsRepositoryInterface) : AbstractCreditHandler(re
         } catch (e: PaymentLessThanMinimalException) {
             throw BadRequestException("Payment should be more than minimum of 100")
         } catch (e: PaymentLessThanRegularException) {
-            throw BadRequestException("Payment can't be less than regular payment")
+            throw BadRequestException("Payment can't be less than regular paymentViewModel")
         } catch (e: PaymentMoreThanFullEarlyRepaimentException) {
             throw BadRequestException("Payment cannot be more than credit amount")
         } catch (e: PaymentDateMoreThanNextPaymentDateException) {
-            throw BadRequestException("Payment cannot be early than last payment date")
+            throw BadRequestException("Payment cannot be early than last paymentViewModel date")
         }
 
         val json = JSONObject()
@@ -63,7 +65,15 @@ class Request(repository: CreditsRepositoryInterface) : AbstractCreditHandler(re
         val body = request.content().toString(CharsetUtil.UTF_8)
 
         return validateCreditId(groups)
-            .and(payment.loadAndValidate(body))
+            .and(validatePaymentViewModel(body))
+    }
+
+    private fun validatePaymentViewModel(body: String): Boolean {
+        if (!paymentViewModel.loadAndValidate(body)) {
+            validation.addMessages(paymentViewModel.validation)
+            return false
+        }
+        return true
     }
 
     companion object {
