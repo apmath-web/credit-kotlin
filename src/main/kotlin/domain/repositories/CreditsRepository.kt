@@ -1,6 +1,7 @@
 package domain.repositories
 
 import domain.exceptions.*
+import domain.exceptions.runtime.*
 import domain.models.CreditInterface
 
 

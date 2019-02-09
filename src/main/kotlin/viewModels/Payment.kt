@@ -5,11 +5,11 @@ import domain.data.Money
 import domain.data.State
 import domain.data.Type
 import domain.valueObjects.Message
-import domain.valueObjects.PaymentInterface as PaymentInterfaceValueObject
 import org.json.JSONObject
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
+import domain.valueObjects.PaymentInterface as PaymentInterfaceValueObject
 
 class Payment : ViewModel(), PaymentInterface {
     override var type: Type? = null

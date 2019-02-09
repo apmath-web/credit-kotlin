@@ -4,8 +4,9 @@ import domain.data.Money
 import domain.data.Currency
 import domain.data.State
 import domain.data.Type
-import domain.valueObjects.PaymentInterface
 import domain.valueObjects.PersonInterface
+import domain.valueObjects.PaymentInterface
+import domain.valueObjects.PaymentRequestInterface
 import java.time.LocalDate
 
 
@@ -20,5 +21,5 @@ interface CreditInterface {
     val isFinished: Boolean
 
     fun getPayments(type: Type?, state: State?): List<PaymentInterface>
-    fun writeOf(payment: PaymentInterface)
+    fun writeOf(paymentRequest: PaymentRequestInterface)
 }
