@@ -222,9 +222,9 @@ class Credit(
             paymentRequestDate <= lastPayment.date
                 -> throw PaymentDateOutdatedException()
             // Type
-            paymentRequest.date != nextPayment.date && paymentType == Type.REGULAR
+            paymentRequestDate != nextPayment.date && paymentType == Type.REGULAR
                 -> throw PaymentTypeInvalidException()
-            paymentRequest.date == nextPayment.date && paymentType == Type.EARLY
+            paymentRequestDate == nextPayment.date && paymentType == Type.EARLY
                     && paymentRequest.payment.value == nextPayment.payment.value
                 -> throw PaymentTypeInvalidException()
         }
@@ -261,6 +261,10 @@ class Credit(
         if (isPaymentLikeRegular) {
             remainPaymentsAmount--
         }
+        if (payment.fullEarlyRepayment.value == payment.payment.value) {
+            isFinished = true
+        }
+
         payments.add(payment)
 
         if (paymentType == Type.EARLY) {
@@ -278,7 +282,7 @@ class Credit(
     private fun getPaymentRequestDate(paymentRequest: PaymentRequestInterface, nextPayment: PaymentInterface): LocalDate {
         return when (paymentRequest.date) {
             null -> nextPayment.date
-            else -> paymentRequest.date!!
+            else -> paymentRequest.date as LocalDate
         }
     }
 

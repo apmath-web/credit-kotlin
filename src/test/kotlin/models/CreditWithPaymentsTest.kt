@@ -2,6 +2,7 @@ package models
 
 import domain.data.Currency
 import domain.data.Money
+import domain.data.Type
 import domain.valueObjects.Person
 import org.json.JSONObject
 import org.junit.jupiter.api.TestInstance
@@ -28,7 +29,7 @@ class CreditWithPaymentsTest {
             6,
             12,
             172600,
-            172357
+            172350
         ),
         /**  */
         Arguments.of(
@@ -37,7 +38,7 @@ class CreditWithPaymentsTest {
             10,
             12,
             105600,
-            105384
+            105380
         ),
         /**  */
         Arguments.of(
@@ -46,28 +47,29 @@ class CreditWithPaymentsTest {
             10,
             12,
             105600,
-            105384
+            105380
         )
     )
 
     // todo rewrite test according to CreditFromJsonTest
     @ParameterizedTest
     @MethodSource("jsonProvider")
-    fun loadAndValidateTest(amount: Int, date: LocalDate, dur: Int, per: Int, pay: Int, lastPay: Int) {
-        val credit = cred(amount, date, dur, per)
+    fun loadAndValidateTest(amount: Int, date: LocalDate, duration: Int, percent: Int, payment: Int, lastPayment: Int) {
+        val credit = getCredit(amount, date, duration, percent)
+        var paymentRequest: PaymentRequest
 
-        for (i in 1 until dur) {
-            val payment = payment(pay, date.plusMonths(i.toLong()))
-            credit.writeOf(payment)
+        for (i in 1 until duration) {
+            paymentRequest = getPaymentRequest(payment)
+            credit.writeOf(paymentRequest)
         }
-        val payment = payment(lastPay, date.plusMonths(dur.toLong()))
-        credit.writeOf(payment)
-        assertTrue { credit.isClosed() }
+        paymentRequest = getPaymentRequest(lastPayment)
+        credit.writeOf(paymentRequest)
+        assertTrue { credit.isFinished }
     }
 
 
 
-    fun cred(amount: Int, date: LocalDate, dur: Int, per: Int): Credit {
+    private fun getCredit(amount: Int, date: LocalDate, dur: Int, per: Int): Credit {
         val js = JSONObject().put("person", JSONObject().put("firstName", "Alexandrova").put("lastName", "Chernyshova"))
             .put("amount", amount)
             .put("agreementAt", date.format(DateTimeFormatter.ISO_DATE))
@@ -79,7 +81,6 @@ class CreditWithPaymentsTest {
 
         val personViewModel = creditViewModel.person as viewModels.Person
 
-        println("Credit is: $js")
         return Credit(
             Person(personViewModel.firstName as String, personViewModel.lastName as String),
             creditViewModel.amount as Money,
@@ -90,23 +91,18 @@ class CreditWithPaymentsTest {
         )
     }
 
-    fun payment(amount: Int, date: LocalDate): PaymentRequest {
+    private fun getPaymentRequest(amount: Int): PaymentRequest {
         val js = JSONObject()
             .put("payment", amount)
-            .put("date", date.format(DateTimeFormatter.ISO_DATE))
-            .put("currency", "USD")
-            .put("type", "regular")
 
         val paymentVM = Payment()
         paymentVM.loadAndValidate(js)
 
-        println(js)
-
         return PaymentRequest(
-            paymentVM.payment!!,
-            paymentVM.type!!,
-            paymentVM.currency!!,
-            paymentVM.date!!
+            paymentVM.payment as Money,
+            paymentVM.type as Type,
+            paymentVM.currency,
+            paymentVM.date
         )
     }
 }

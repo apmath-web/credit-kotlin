@@ -23,9 +23,9 @@ class CreditsRepository : CreditsRepositoryInterface {
 
     override fun remove(credit: CreditInterface) {
         when {
-            credit.id != null               -> throw RemoveUnidentifiedCreditException()
-            !credit.isFinished              -> throw RemoveUnfinishedCreditException()
-            !credits.containsKey(credit.id) -> throw RemoveAbsentCreditException()
+            credit.id == null                      -> throw RemoveUnidentifiedCreditException()
+            !credit.isFinished                     -> throw RemoveUnfinishedCreditException()
+            !credits.containsKey(credit.id as Int) -> throw RemoveAbsentCreditException()
         }
 
         credits.remove(credit.id)
