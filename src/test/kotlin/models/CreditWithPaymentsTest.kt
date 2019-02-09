@@ -10,8 +10,8 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import domain.models.Credit
-import domain.valueObjects.PaymentRequest
-import viewModels.Payment
+import domain.valueObjects.PaymentRequest as PaymentRequestValueObject
+import viewModels.PaymentRequest as PaymentRequestViewModel
 import viewModels.Credit as CreditViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -56,7 +56,7 @@ class CreditWithPaymentsTest {
     @MethodSource("jsonProvider")
     fun loadAndValidateTest(amount: Int, date: LocalDate, duration: Int, percent: Int, payment: Int, lastPayment: Int) {
         val credit = getCredit(amount, date, duration, percent)
-        var paymentRequest: PaymentRequest
+        var paymentRequest: PaymentRequestValueObject
 
         for (i in 1 until duration) {
             paymentRequest = getPaymentRequest(payment)
@@ -91,18 +91,18 @@ class CreditWithPaymentsTest {
         )
     }
 
-    private fun getPaymentRequest(amount: Int): PaymentRequest {
+    private fun getPaymentRequest(amount: Int): PaymentRequestValueObject {
         val js = JSONObject()
             .put("payment", amount)
 
-        val paymentVM = Payment()
-        paymentVM.loadAndValidate(js)
+        val paymentViewModel = PaymentRequestViewModel()
+        paymentViewModel.loadAndValidate(js)
 
-        return PaymentRequest(
-            paymentVM.payment as Money,
-            paymentVM.type as Type,
-            paymentVM.currency,
-            paymentVM.date
+        return PaymentRequestValueObject(
+            paymentViewModel.payment as Money,
+            paymentViewModel.type as Type,
+            paymentViewModel.currency,
+            paymentViewModel.date
         )
     }
 }

@@ -13,13 +13,13 @@ import io.netty.handler.codec.http.FullHttpResponse
 import io.netty.handler.codec.http.HttpResponseStatus
 import io.netty.util.CharsetUtil
 import org.json.JSONObject
-import viewModels.Payment as PaymentViewModel
+import viewModels.PaymentRequest as PaymentRequestViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 class Request(repository: CreditsRepositoryInterface) : AbstractCreditHandler(repository) {
 
-    private val paymentViewModel = PaymentViewModel()
+    private val paymentRequestViewModel = PaymentRequestViewModel()
 
     @Throws
     override fun handle(request: FullHttpRequest): FullHttpResponse {
@@ -28,10 +28,10 @@ class Request(repository: CreditsRepositoryInterface) : AbstractCreditHandler(re
         }
 
         val paymentRequest = PaymentRequest(
-            paymentViewModel.payment as Money,
-            paymentViewModel.type as Type,
-            paymentViewModel.currency,
-            paymentViewModel.date
+            paymentRequestViewModel.payment as Money,
+            paymentRequestViewModel.type as Type,
+            paymentRequestViewModel.currency,
+            paymentRequestViewModel.date
         )
 
         val credit = getCredit()
@@ -69,8 +69,8 @@ class Request(repository: CreditsRepositoryInterface) : AbstractCreditHandler(re
     }
 
     private fun validatePaymentViewModel(body: String): Boolean {
-        if (!paymentViewModel.loadAndValidate(body)) {
-            validation.addMessages(paymentViewModel.validation)
+        if (!paymentRequestViewModel.loadAndValidate(body)) {
+            validation.addMessages(paymentRequestViewModel.validation)
             return false
         }
         return true
