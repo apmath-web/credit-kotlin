@@ -1,20 +1,18 @@
 package viewModels
 
 import org.json.JSONObject
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import java.util.stream.Stream
-import kotlin.test.assertNotEquals
+import kotlin.test.*
 
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CreditFromJsonTest {
 
-    private fun invalidJsonProvider() = Stream.of(
+    private fun dataProvider() = Stream.of(
         // TODO add more true/false cases @malinink
 
         // invalid data
@@ -235,7 +233,7 @@ class CreditFromJsonTest {
         )
     )
     @ParameterizedTest
-    @MethodSource("invalidJsonProvider")
+    @MethodSource("dataProvider")
     fun loadAndValidateTest(json: JSONObject, isValid: Boolean, fields: Array<String>?) {
         val credit = Credit()
 
@@ -243,8 +241,8 @@ class CreditFromJsonTest {
             assertTrue(credit.loadAndValidate(json))
         } else {
             assertFalse(credit.loadAndValidate(json))
-            fields?.forEach {
-                field -> var messages = credit.validation.messages.filter {
+            fields?.forEach { field ->
+                var messages = credit.validation.messages.filter {
                     it.field == field
                 }
                 assertNotEquals(0, messages.size, "No error message for field ${field} found")

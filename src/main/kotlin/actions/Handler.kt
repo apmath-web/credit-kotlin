@@ -35,20 +35,20 @@ class Handler : AbstractHandler() {
 
         when {
 
-            request.method() == HttpMethod.POST && request.uri() == "/credit"
-                -> return Create(repository).handle(request)
+            request.method() == HttpMethod.POST && request.uri() == "/credit" ->
+                return Create(repository).handle(request)
 
-            request.method() == HttpMethod.GET && Regex(Read.ROUTE).matches(request.uri())
-                -> return Read(repository).handle(request)
+            request.method() == HttpMethod.GET && Regex(Read.ROUTE).matches(request.uri()) ->
+                return Read(repository).handle(request)
 
-            request.method() == HttpMethod.DELETE && Regex(Delete.ROUTE).matches(request.uri())
-                -> return Delete(repository).handle(request)
+            request.method() == HttpMethod.DELETE && Regex(Delete.ROUTE).matches(request.uri()) ->
+                return Delete(repository).handle(request)
 
-            request.method() == HttpMethod.GET && Regex(List.ROUTE).matches(request.uri())
-                -> return List(repository).handle(request)
+            request.method() == HttpMethod.GET && Regex(List.ROUTE).matches(request.uri()) ->
+                return List(repository).handle(request)
 
-            request.method() == HttpMethod.PUT && Regex(Request.ROUTE).matches(request.uri())
-                -> return Request(repository).handle(request)
+            request.method() == HttpMethod.PUT && Regex(Request.ROUTE).matches(request.uri()) ->
+                return Request(repository).handle(request)
 
         }
 
