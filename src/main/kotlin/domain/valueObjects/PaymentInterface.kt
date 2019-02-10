@@ -1,9 +1,9 @@
 package domain.valueObjects
 
-import domain.data.Type
+import domain.data.Currency
 import domain.data.State
 import domain.data.Money
-import domain.data.Currency
+import domain.data.Type
 import java.time.LocalDate
 
 

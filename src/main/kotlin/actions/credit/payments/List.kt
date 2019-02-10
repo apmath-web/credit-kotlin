@@ -1,5 +1,6 @@
-package actions.credit
+package actions.credit.payments
 
+import actions.credit.AbstractCreditHandler
 import domain.data.Type
 import domain.data.State
 import io.netty.handler.codec.http.*
@@ -14,7 +15,7 @@ import viewModels.Payment as PaymentViewModel
 import java.util.HashMap
 
 
-class Payments(repository: CreditsRepositoryInterface) : AbstractCreditHandler(repository) {
+class List(repository: CreditsRepositoryInterface) : AbstractCreditHandler(repository) {
 
     var paymentsType: Type? = null
     var paymentsState: State? = null
@@ -52,7 +53,7 @@ class Payments(repository: CreditsRepositoryInterface) : AbstractCreditHandler(r
             query.split("&").forEach {
                 val keyValue = it.split("=")
                 if(keyValue.size >= 2){
-                    queryParams[keyValue[0]] = keyValue[1];
+                    queryParams[keyValue[0]] = keyValue[1]
                 }
             }
         } catch (e: IllegalArgumentException) {
