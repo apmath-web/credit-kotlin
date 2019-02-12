@@ -9,7 +9,7 @@ install:
   - mv credit-bdd bdd
 script:
   - ./gradlew test
-  - ./gradlew &
+  - ./gradlew & sleep 5
   - java -jar karate.jar bdd/tests/bdd/create-credit-test.feature
   - java -jar karate.jar bdd/tests/bdd/read-credit-test.feature
   - java -jar karate.jar bdd/tests/bdd/payments-list-test.feature
