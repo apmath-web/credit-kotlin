@@ -2,5 +2,14 @@ language:
   - java
 jdk:
   - openjdk8
+install:
+  - wget https://dl.bintray.com/ptrthomas/karate/karate-0.9.0.RC2.jar
+  - mv karate-0.9.0.RC2.jar karate.jar
+  - git clone https://github.com/apmath-web/credit-bdd.git
+  - mv credit-bdd bdd
 script:
   - ./gradlew test
+  - ./gradlew & sleep 5
+  - java -jar karate.jar bdd/tests/bdd/create-credit-test.feature
+  - java -jar karate.jar bdd/tests/bdd/read-credit-test.feature
+  - java -jar karate.jar bdd/tests/bdd/payments-list-test.feature
